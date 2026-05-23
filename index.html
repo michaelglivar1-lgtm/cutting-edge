@@ -145,6 +145,73 @@
     gtag('js', new Date());
     gtag('config', 'G-SYBM2MBTEE', { 'send_page_view': true });
   </script>
+
+  <!-- ─── LIVE VISIT ALERT → michaelglivar1@gmail.com ─── -->
+  <script>
+    (function () {
+      // De-dupe: only fire once per browser session per page
+      try {
+        var key = 'ce_visit_alert_' + location.pathname;
+        if (sessionStorage.getItem(key)) return;
+        sessionStorage.setItem(key, '1');
+      } catch (e) { /* sessionStorage blocked — still fire */ }
+
+      // Skip bots / crawlers (we don't want pings from Googlebot etc.)
+      var ua = (navigator.userAgent || '').toLowerCase();
+      if (/bot|crawl|spider|slurp|fetch|monitor|preview|headless|lighthouse|pagespeed/.test(ua)) return;
+
+      // Skip our own visits if ?nopush=1 is in URL (paste link with ?nopush=1 when testing)
+      if (location.search.indexOf('nopush=1') !== -1) return;
+
+      // Collect lightweight visit context
+      var ref      = document.referrer || 'Direct / typed URL';
+      var page     = location.href;
+      var device   = /Mobi|Android|iPhone|iPad/.test(navigator.userAgent) ? 'Mobile' : 'Desktop';
+      var tz       = (Intl.DateTimeFormat().resolvedOptions().timeZone) || 'unknown';
+      var lang     = navigator.language || 'unknown';
+      var screenSz = (screen.width || '?') + 'x' + (screen.height || '?');
+      var now      = new Date().toLocaleString('en-US', { timeZone: 'America/Denver' });
+
+      // Best-effort geo lookup (free, no key) — fail silent if blocked
+      fetch('https://ipapi.co/json/').then(function (r) { return r.json(); }).catch(function () { return {}; }).then(function (g) {
+        var geo = g && g.city ? (g.city + ', ' + (g.region || '') + ' ' + (g.country_name || '')).trim() : 'Unknown location';
+        var ip  = (g && g.ip) || 'unknown';
+        var org = (g && g.org) || '';
+
+        var body = [
+          '╔════════════════════════════════════════╗',
+          '   NEW VISITOR — Cutting Edge',
+          '╚════════════════════════════════════════╝',
+          '',
+          '🕐  Time (MDT):   ' + now,
+          '📍  Location:     ' + geo,
+          '🌐  IP / ISP:     ' + ip + (org ? '  (' + org + ')' : ''),
+          '📱  Device:       ' + device + ' · ' + screenSz,
+          '🗣️  Language:     ' + lang + ' · ' + tz,
+          '',
+          '📄  Page:         ' + page,
+          '🔗  Came from:    ' + ref,
+          '',
+          'View live in Google Analytics:',
+          'https://analytics.google.com/'
+        ].join('\n');
+
+        // Fire to Web3Forms (async, no await, won't block page)
+        fetch('https://api.web3forms.com/submit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+          body: JSON.stringify({
+            access_key:  'b39d9c9d-df2e-48d4-9d79-d9533b39abf7',
+            subject:     '🏛️ Visitor on Cutting Edge — ' + geo,
+            from_name:   'Cutting Edge Visit Alert',
+            email:       'alerts@cuttingedgedesignfl.com',
+            message:     body,
+            botcheck:    ''
+          })
+        }).catch(function () { /* fail silent — never break user experience */ });
+      });
+    })();
+  </script>
 </head>
 <body>
 
