@@ -21,6 +21,15 @@
   <link rel="stylesheet" href="style.css" />
 
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%231a140d'/%3E%3Cpath d='M8 8h16v2H10v5h12v2H10v5h14v2H8z' fill='%23c19a4b'/%3E%3C/svg%3E" />
+
+  <!-- Google Analytics 4 — live visitor tracking + custom events -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-SYBM2MBTEE"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-SYBM2MBTEE', { 'send_page_view': true });
+  </script>
 </head>
 <body>
 
@@ -1427,6 +1436,14 @@
 
           document.getElementById('selectedProjectLabel').textContent = state.projectLabel;
           renderInvestmentGrid(state.scale);
+
+          // GA4: project selected
+          if (window.gtag) {
+            window.gtag('event', 'select_project', {
+              project_type: state.projectLabel,
+            });
+          }
+
           // Small delay so the selection animation reads
           setTimeout(() => goToStep(2), 280);
         });
@@ -1451,6 +1468,15 @@
             grid.querySelectorAll('.invest-card').forEach(c => c.classList.remove('is-selected'));
             card.classList.add('is-selected');
             renderReserveSummary();
+
+            // GA4: investment range selected — the most valuable signal
+            if (window.gtag) {
+              window.gtag('event', 'select_investment_range', {
+                project_type: state.projectLabel,
+                investment_range: state.range,
+              });
+            }
+
             setTimeout(() => goToStep(3), 280);
           });
         });
@@ -1475,10 +1501,9 @@
         btn.addEventListener('click', () => goToStep(Number(btn.dataset.backTo)));
       });
 
-      // Form submission — sends to Formspree (free), which emails the lead
-      // to michaelglivar1@gmail.com. Replace FORMSPREE_ID below after 60-second
-      // signup at https://formspree.io (use your Gmail; first form is free).
-      const FORMSPREE_ID = 'REPLACE_ME';   // ← swap with your real ID, e.g. 'mwkdaylp'
+      // Form submission — sends to Web3Forms, which emails the lead
+      // to michaelglivar1@gmail.com.
+      const WEB3FORMS_KEY = 'b39d9c9d-df2e-48d4-9d79-d9533b39abf7';
       const CALENDLY_URL = 'https://calendly.com/michaelglivar1';  // ← swap with your real Calendly link
 
       // Sync the success-state Calendly button to whatever the constant says
@@ -1495,7 +1520,9 @@
         }
 
         const payload = {
-          _subject: `New Consultation Request — ${state.projectLabel || 'Project'}`,
+          access_key: WEB3FORMS_KEY,
+          subject: `New Consultation Request — ${state.projectLabel || 'Project'}`,
+          from_name: data.name,
           project: state.projectLabel || '',
           investment_range: state.range || '',
           name: data.name,
@@ -1503,25 +1530,26 @@
           phone: data.phone || '',
           location: data.location || '',
           vision: data.vision || '',
+          // Track consultation events in GA4
+          _redirect: false,
         };
 
-        // Try Formspree first; fall back to mailto if not configured
         let sent = false;
-        if (FORMSPREE_ID && FORMSPREE_ID !== 'REPLACE_ME') {
-          try {
-            const res = await fetch(`https://formspree.io/f/${FORMSPREE_ID}`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-              body: JSON.stringify(payload),
-            });
-            sent = res.ok;
-          } catch (err) {
-            sent = false;
-          }
+        try {
+          const res = await fetch('https://api.web3forms.com/submit', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+            body: JSON.stringify(payload),
+          });
+          const result = await res.json();
+          sent = res.ok && result.success === true;
+        } catch (err) {
+          sent = false;
         }
+
         if (!sent) {
           // Mailto fallback so a lead is never lost
-          const subject = encodeURIComponent(payload._subject);
+          const subject = encodeURIComponent(payload.subject);
           const body = encodeURIComponent(
             `Project: ${payload.project}\n` +
             `Investment range: ${payload.investment_range}\n` +
@@ -1534,6 +1562,14 @@
           const a = document.createElement('a');
           a.href = `mailto:michaelglivar1@gmail.com?subject=${subject}&body=${body}`;
           a.click();
+        }
+
+        // GA4 event
+        if (window.gtag) {
+          window.gtag('event', 'consultation_request', {
+            project_type: state.projectLabel,
+            investment_range: state.range,
+          });
         }
 
         form.hidden = true;
