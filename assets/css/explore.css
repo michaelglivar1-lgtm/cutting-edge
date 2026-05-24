@@ -1252,6 +1252,7 @@ div.pnlm-tooltip span::after {
   display: grid;
   grid-template-rows: 1fr auto auto;
   height: 100%;
+  min-height: 100%;
   background: #0a0806;
   color: #f3e8d2;
   overflow: hidden;
@@ -1261,6 +1262,7 @@ div.pnlm-tooltip span::after {
   overflow: hidden;
   background: #050402;
   outline: none;
+  min-height: 320px;
 }
 .lb-gallery-slide {
   position: absolute;
@@ -1397,7 +1399,15 @@ div.pnlm-tooltip span::after {
 }
 
 @media (max-width: 720px) {
-  .lb-gallery-arrow { width: 44px; height: 44px; font-size: 24px; }
+  /* On mobile, give the stage a guaranteed tall viewport-relative height so the
+     hero photo dominates the gallery (was collapsing to a thin strip before). */
+  .lb-gallery {
+    grid-template-rows: minmax(420px, 60vh) auto auto;
+    height: auto;
+    min-height: 100%;
+  }
+  .lb-gallery-stage { min-height: 420px; height: 60vh; }
+  .lb-gallery-arrow { width: 40px; height: 40px; font-size: 22px; }
   .lb-gallery-arrow-prev { left: 8px; }
   .lb-gallery-arrow-next { right: 8px; }
   .lb-gallery-counter { font-size: 10px; padding: 4px 8px; top: 10px; left: 10px; }
@@ -1406,5 +1416,5 @@ div.pnlm-tooltip span::after {
   .lb-gallery-thumb { width: 64px; height: 44px; }
   .lb-gallery-caption { padding: 16px 18px; }
   .lb-gallery-caption-text { font-size: 14px; }
-  .lb-gallery-actions .scene-action { flex: 1; justify-content: center; }
+  .lb-gallery-actions .scene-action { flex: 1; justify-content: center; padding: 12px 14px; font-size: 11px; letter-spacing: 0.1em; }
 }
