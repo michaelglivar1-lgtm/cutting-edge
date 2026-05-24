@@ -34,7 +34,9 @@ window.CE_WORLDS = [
       { q: "What's the typical build timeline?", a: "14–22 months for a single-residence Modern Minimalist, including custom millwork and architectural concrete." },
     ],
     related: ["calabasas-minimalist", "warm-modern", "coastal-contemporary"],
-    walkthrough: null,
+    walkthrough: "https://my.matterport.com/show/?m=Ck3Vg7Jmzih",
+    walkthroughCredit: "1409 Ash Street · Nelson, BC",
+    walkthroughHostedBy: "Matterport",
   },
   {
     id: "warm-modern",
@@ -62,7 +64,9 @@ window.CE_WORLDS = [
       { q: "Best site for this direction?", a: "Anywhere with a view that justifies the steel-framed glass: oceanfront, canyon, lake, or a deeply landscaped private lot. The architecture is built to frame the outside." },
     ],
     related: ["modern-minimalist", "calabasas-minimalist", "miami-modern"],
-    walkthrough: null,
+    walkthrough: "https://my.matterport.com/show/?m=nCSAs9bnTSo",
+    walkthroughCredit: "Modern Home · Brio Design Homes",
+    walkthroughHostedBy: "Matterport",
   },
   {
     id: "miami-modern",
@@ -90,7 +94,9 @@ window.CE_WORLDS = [
       { q: "Can this direction work inland?", a: "Yes. We've built Miami Modern in Naples and Sarasota on lake and golf-course lots. The direction adapts well wherever the view is the primary asset." },
     ],
     related: ["coastal-contemporary", "warm-modern", "modern-minimalist"],
-    walkthrough: null,
+    walkthrough: "https://my.matterport.com/show/?m=7HEWVBfCS15",
+    walkthroughCredit: "2805 Freeman St · Coconut Grove, Miami",
+    walkthroughHostedBy: "ONE Sotheby's International",
   },
   {
     id: "calabasas-minimalist",
@@ -118,7 +124,9 @@ window.CE_WORLDS = [
       { q: "What's the maintenance like on hand-troweled plaster?", a: "Very low. Lime plaster naturally resists mold and self-heals minor cracks. We re-burnish every 5–7 years to maintain depth." },
     ],
     related: ["modern-minimalist", "warm-modern", "french-european"],
-    walkthrough: null,
+    walkthrough: "https://my.matterport.com/show/?m=AEhG1sjMfYR",
+    walkthroughCredit: "Jan Sofat 26 Villa · Curaçao",
+    walkthroughHostedBy: "Century 21 Curaçao",
   },
   {
     id: "mediterranean-estate",
@@ -146,7 +154,9 @@ window.CE_WORLDS = [
       { q: "How long does a build like this take?", a: "20–30 months for an 8,000–15,000 sf estate. Hand-carved limestone alone takes 4–6 months of artisan time before installation." },
     ],
     related: ["tuscan-european", "spanish-transitional", "french-european"],
-    walkthrough: null,
+    walkthrough: "https://my.matterport.com/show/?m=WACHr1WuuUY",
+    walkthroughCredit: "Mediterranean Estate · Sample Listing",
+    walkthroughHostedBy: "Matterport",
   },
   {
     id: "tuscan-european",
@@ -174,7 +184,9 @@ window.CE_WORLDS = [
       { q: "Can I have a modern kitchen inside a Tuscan villa?", a: "Yes. We routinely integrate quietly modern appliances and lighting into Tuscan envelopes. The trick is making the integration invisible — hidden refrigeration, panel-front everything, induction cooktops beneath carved stone surrounds." },
     ],
     related: ["mediterranean-estate", "spanish-transitional", "french-european"],
-    walkthrough: null,
+    walkthrough: "https://my.matterport.com/show/?m=xqeYixTffNK",
+    walkthroughCredit: "Tuscan Inspired Estate · Palm Desert, CA",
+    walkthroughHostedBy: "The Briggs Group",
   },
   {
     id: "spanish-transitional",
@@ -202,7 +214,9 @@ window.CE_WORLDS = [
       { q: "How does this read with palm shadows?", a: "It's one of the best directions in Florida light. Palm fronds throw beautiful moving shadows on white plaster walls — it's almost a built-in art piece, free with every site that has mature landscaping." },
     ],
     related: ["mediterranean-estate", "tuscan-european", "coastal-contemporary"],
-    walkthrough: null,
+    walkthrough: "https://my.matterport.com/show/?m=HXTyQg8rQZM",
+    walkthroughCredit: "Ojochateau · Costa Rica",
+    walkthroughHostedBy: "Osa Tropical Properties",
   },
   {
     id: "french-european",
@@ -230,7 +244,9 @@ window.CE_WORLDS = [
       { q: "Can this direction read as 'stuffy'?", a: "Only if the proportions are too small or the antiques are too prominent. Done at the right scale — generous rooms, restrained antique placement, modern lighting hidden inside the period vocabulary — it reads as serenely classical, not museum-like." },
     ],
     related: ["mediterranean-estate", "calabasas-minimalist", "tuscan-european"],
-    walkthrough: null,
+    walkthrough: "https://my.matterport.com/show/?m=SKP1K2aBoqU",
+    walkthroughCredit: "French Country New Build · Sasser Construction",
+    walkthroughHostedBy: "Sasser Construction",
   },
   {
     id: "coastal-contemporary",
@@ -258,7 +274,9 @@ window.CE_WORLDS = [
       { q: "Will slipcovers really hold up?", a: "Yes. We spec performance linens (Crypton, indoor-outdoor blends) that look like classic linen but resist staining and machine-wash. Two sets of slipcovers per piece is standard." },
     ],
     related: ["miami-modern", "warm-modern", "modern-minimalist"],
-    walkthrough: null,
+    walkthrough: "https://my.matterport.com/show/?m=3r7w7Tu7XqJ",
+    walkthroughCredit: "Summertime Estate · Treasure Cay, Bahamas",
+    walkthroughHostedBy: "Abaco Estate Services",
   },
 ];
 

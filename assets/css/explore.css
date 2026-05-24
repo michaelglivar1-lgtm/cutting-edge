@@ -851,6 +851,46 @@ div.pnlm-tooltip span::after {
 
 /* VR badge */
 .lb-iframe-wrap { position: relative; width: 100%; height: 100%; }
+
+/* Reference-walkthrough credit overlay */
+.lb-credit {
+  position: absolute;
+  bottom: 12px;
+  left: 12px;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 14px;
+  background: rgba(11,12,14,0.86);
+  border: 1px solid var(--explore-line-soft);
+  border-radius: 6px;
+  color: var(--explore-ink);
+  font-family: var(--font-display, serif);
+  font-size: 11px;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  max-width: calc(100% - 200px);
+  pointer-events: none;
+}
+.lb-credit-eyebrow {
+  font-size: 9px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--explore-gold);
+}
+.lb-credit-text {
+  font-size: 11.5px;
+  letter-spacing: 0.02em;
+  color: var(--explore-ink-soft);
+}
+.lb-credit-text em { font-style: italic; opacity: 0.85; }
+@media (max-width: 720px) {
+  .lb-credit { left: 8px; bottom: 8px; padding: 6px 10px; max-width: calc(100% - 110px); }
+  .lb-credit-eyebrow { font-size: 8px; letter-spacing: 0.2em; }
+  .lb-credit-text { font-size: 10px; }
+}
+
 .lb-vr-badge {
   position: absolute;
   bottom: 12px;

@@ -227,15 +227,25 @@ function openLightbox() {
 
   if (world.walkthrough) {
     lbFrame.classList.remove("has-pano");
-    // Real Matterport / Kuula iframe path
+    // Real Matterport / Kuula iframe path. Build URL with embed-friendly params
+    // hl=0 hides highlights, play=1 starts the tour, qs=1 enables Quickstart UI.
+    const src = world.walkthrough.includes("?")
+      ? `${world.walkthrough}&hl=0&play=1&qs=1`
+      : `${world.walkthrough}?hl=0&play=1&qs=1`;
     lbFrame.innerHTML = `
       <div class="lb-iframe-wrap">
-        <iframe src="${world.walkthrough}" title="${world.name} walkthrough" allow="xr-spatial-tracking; fullscreen; vr; gyroscope; accelerometer" allowfullscreen></iframe>
+        <iframe src="${src}" title="${world.name} walkthrough" allow="xr-spatial-tracking; fullscreen; vr; gyroscope; accelerometer" allowfullscreen></iframe>
       </div>
       <div class="lb-vr-badge" aria-label="Compatible with VR headsets">
         <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="2" y="7" width="20" height="10" rx="2"/><circle cx="7.5" cy="12" r="1.5"/><circle cx="16.5" cy="12" r="1.5"/></svg>
         VR Ready · Quest · Vision Pro
       </div>
+      ${world.walkthroughCredit ? `
+        <div class="lb-credit">
+          <span class="lb-credit-eyebrow">Reference Walkthrough</span>
+          <span class="lb-credit-text">${world.walkthroughCredit}${world.walkthroughHostedBy ? ` — <em>${world.walkthroughHostedBy}</em>` : ""}</span>
+        </div>
+      ` : ""}
     `;
   } else {
     // Pannellum 360 panorama path — default for every world until real walkthroughs are wired
