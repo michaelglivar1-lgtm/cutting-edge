@@ -305,10 +305,15 @@
 .intel-styles {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
-  gap: 1px;
-  background: var(--intel-line);
+  gap: 0;
   border: 1px solid var(--intel-line);
 }
+.intel-style-card {
+  border-right: 1px solid var(--intel-line);
+  border-bottom: 1px solid var(--intel-line);
+}
+/* Remove the right border on the last item of each row + bottom on the last row */
+.intel-style-card:last-child { border-right: 0; border-bottom: 0; }
 .intel-style-card {
   background: var(--intel-bg-2);
   padding: 32px 32px 28px;
@@ -413,10 +418,14 @@
 .intel-cities {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-  gap: 1px;
-  background: var(--intel-line);
+  gap: 0;
   border: 1px solid var(--intel-line);
 }
+.intel-city {
+  border-right: 1px solid var(--intel-line);
+  border-bottom: 1px solid var(--intel-line);
+}
+.intel-city:last-child { border-right: 0; border-bottom: 0; }
 .intel-city {
   background:
     linear-gradient(135deg, rgba(193, 154, 75, 0.05), transparent 50%),
@@ -514,10 +523,14 @@
 .intel-finishes {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-  gap: 1px;
-  background: var(--intel-line);
+  gap: 0;
   border: 1px solid var(--intel-line);
 }
+.intel-finish {
+  border-right: 1px solid var(--intel-line);
+  border-bottom: 1px solid var(--intel-line);
+}
+.intel-finish:last-child { border-right: 0; border-bottom: 0; }
 .intel-finish {
   background: var(--intel-bg-2);
   padding: 22px 24px 20px;
@@ -586,10 +599,14 @@
 .intel-forecast {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
-  gap: 1px;
-  background: var(--intel-line);
+  gap: 0;
   border: 1px solid var(--intel-line);
 }
+.intel-forecast-card {
+  border-right: 1px solid var(--intel-line);
+  border-bottom: 1px solid var(--intel-line);
+}
+.intel-forecast-card:last-child { border-right: 0; border-bottom: 0; }
 .intel-forecast-card {
   background: var(--intel-bg-2);
   padding: 32px 32px 28px;

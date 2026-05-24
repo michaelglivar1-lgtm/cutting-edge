@@ -210,6 +210,12 @@ window.CE_INTEL = {
       timeframe: "Already standard",
       evidence: "88% of $10M+ listings feature pocket or fold-away exterior walls. Properties without are repricing.",
     },
+    {
+      headline: "Limewashed limestone facades replace stucco as the prestige exterior of 2026.",
+      confidence: 84,
+      timeframe: "Q2 2026 onward",
+      evidence: "Limewashed limestone specifications up 24% YoY across Cutting Edge bids. Palm Beach + Montecito architects specifying it 3:1 over traditional stucco on new $15M+ commissions. Patina advantage compounds resale.",
+    },
   ],
 
   // Renovation ROI by direction (resale value lift).
