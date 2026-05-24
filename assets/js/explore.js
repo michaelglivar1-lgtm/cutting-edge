@@ -238,6 +238,8 @@ function openLightbox() {
     // (not blocking Matterport's own play button), so the user sees the Matterport poster
     // + their play button immediately, plus our luxury context (estate name, instructions).
     // The ribbon fades when the tour starts (we listen for postMessage from Matterport).
+    // Bottom-left + bottom-right gold masks hide Matterport's own "Help | Terms" and
+    // "Matterport" branding so the experience reads as Cutting Edge end-to-end.
     lbFrame.innerHTML = `
       <div class="lb-iframe-wrap">
         <iframe src="${src}" title="${world.name} walkthrough" allow="xr-spatial-tracking; fullscreen; vr; gyroscope; accelerometer; autoplay" allowfullscreen></iframe>
@@ -253,6 +255,12 @@ function openLightbox() {
             <span>${world.walkthroughCredit ? world.walkthroughCredit.split(" · ")[0] : world.name} · Drag to look · Pinch to zoom</span>
           </span>
         </div>
+        <div class="lb-brand-mask lb-brand-mask-bl" aria-hidden="true">
+          <span class="lb-brand-mask-text">Cutting Edge · Design & Construction</span>
+        </div>
+        <div class="lb-brand-mask lb-brand-mask-br" aria-hidden="true">
+          <span class="lb-brand-mask-text">${world.name}</span>
+        </div>
       </div>
       <div class="lb-vr-badge" aria-label="Compatible with VR headsets">
         <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="2" y="7" width="20" height="10" rx="2"/><circle cx="7.5" cy="12" r="1.5"/><circle cx="16.5" cy="12" r="1.5"/></svg>
@@ -260,7 +268,7 @@ function openLightbox() {
       </div>
       ${world.walkthroughCredit ? `
         <div class="lb-credit">
-          <span class="lb-credit-eyebrow">Reference Estate · Sotheby's International</span>
+          <span class="lb-credit-eyebrow">Reference Estate · By Invitation</span>
           <span class="lb-credit-text">${world.walkthroughCredit}</span>
           ${(world.walkthroughPrice || world.walkthroughSqft) ? `
             <span class="lb-credit-stats">

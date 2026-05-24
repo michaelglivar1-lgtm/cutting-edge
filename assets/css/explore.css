@@ -914,6 +914,54 @@ div.pnlm-tooltip span::after {
   .lb-tap-hint-text span { font-size: 8.5px; }
 }
 
+/* Gold brand masks — cover Matterport's bottom "Help | Terms" (left) and
+   "Matterport" wordmark (right) so the experience reads end-to-end as Cutting Edge.
+   Click-through so the floor-plan / walk / dollhouse icons remain reachable just above. */
+.lb-brand-mask {
+  position: absolute;
+  bottom: 0;
+  height: 36px;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  pointer-events: none;
+  background: linear-gradient(180deg, rgba(8, 6, 4, 0) 0%, rgba(8, 6, 4, 0.96) 55%, rgba(8, 6, 4, 1) 100%);
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(193, 154, 75, 0.78);
+}
+.lb-brand-mask-bl {
+  left: 0;
+  width: 38%;
+  border-bottom-left-radius: inherit;
+  justify-content: flex-start;
+}
+.lb-brand-mask-br {
+  right: 0;
+  width: 38%;
+  border-bottom-right-radius: inherit;
+  justify-content: flex-end;
+  text-align: right;
+}
+.lb-brand-mask-text {
+  font-family: "Cormorant Garamond", "Playfair Display", Georgia, serif;
+  font-size: 11px;
+  letter-spacing: 0.28em;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-style: italic;
+  text-transform: none;
+}
+@media (max-width: 720px) {
+  .lb-brand-mask { height: 28px; padding: 0 10px; }
+  .lb-brand-mask-bl, .lb-brand-mask-br { width: 45%; }
+  .lb-brand-mask-text { font-size: 9px; letter-spacing: 0.2em; }
+}
+
 /* Reference-walkthrough credit overlay */
 .lb-credit {
   position: absolute;
