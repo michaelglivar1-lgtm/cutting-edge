@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>3D Explore — Cutting Edge Design and Construction</title>
+  <meta name="description" content="Step inside curated architectural worlds and experience how different luxury design directions transform a space." />
+  <meta name="theme-color" content="#0b0c0e" />
+  <link rel="icon" type="image/svg+xml" href="assets/img/logo-crest.svg" />
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="assets/css/explore.css" />
+  <link rel="preload" as="image" href="assets/worlds/warm-modern.webp" />
+</head>
+<body class="theme-dark explore-body">
+
+  <!-- ─── HEADER ─── -->
+  <header class="site-header explore-header" id="siteHeader">
+    <a href="index.html#top" class="brand" aria-label="Cutting Edge — Home">
+      <img src="assets/img/logo-crest.svg" alt="" class="brand-crest" width="44" height="50" decoding="async" />
+      <span class="brand-name">Cutting Edge</span>
+      <span class="brand-divider">·</span>
+      <span class="brand-suffix">Design and Construction</span>
+    </a>
+
+    <nav class="nav" aria-label="Primary">
+      <a href="index.html#modern">Modern</a>
+      <a href="index.html#mediterranean">Mediterranean</a>
+      <a href="3d-explore.html" aria-current="page">3D Explore</a>
+      <a href="index.html#process">Atelier</a>
+      <a href="index.html#contact" class="btn-pill">Begin a Project <span aria-hidden="true">→</span></a>
+    </nav>
+  </header>
+
+  <!-- ─── STAGE ─── -->
+  <main class="explore-stage" id="exploreStage">
+
+    <!-- Background scenes (all stacked, only active is visible) -->
+    <div class="stage-canvas" id="stageCanvas" aria-live="polite">
+      <!-- scenes injected by JS -->
+    </div>
+
+    <!-- Vignette + scrim -->
+    <div class="stage-scrim" aria-hidden="true"></div>
+    <div class="stage-vignette" aria-hidden="true"></div>
+
+    <!-- Top eyebrow / title -->
+    <div class="stage-eyebrow">
+      <div class="eyebrow-label">3D Explore</div>
+      <div class="eyebrow-counter">
+        <span id="directionIndex">01</span><span class="eyebrow-divider">/</span><span id="directionTotal">09</span>
+      </div>
+    </div>
+
+    <!-- Active scene meta (lower-left) -->
+    <div class="scene-meta" id="sceneMeta">
+      <div class="scene-meta-label">Direction</div>
+      <h1 class="scene-meta-title" id="sceneTitle">Warm Modern</h1>
+      <p class="scene-meta-mood" id="sceneMood">Walnut, raw bronze, and golden-hour canyon light.</p>
+
+      <div class="scene-materials" id="sceneMaterials" aria-label="Signature materials"></div>
+
+      <div class="scene-actions">
+        <button class="scene-action scene-action-primary" id="walkthroughBtn" type="button">
+          <span class="action-dot" aria-hidden="true"></span>
+          Enter Walkthrough
+        </button>
+        <button class="scene-action" id="saveBtn" type="button">
+          <svg class="action-icon" viewBox="0 0 16 20" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M2 2h12v17l-6-4-6 4z"/></svg>
+          Save Direction
+        </button>
+      </div>
+    </div>
+
+    <!-- Floating world selector (right rail) -->
+    <aside class="world-rail" aria-label="Design directions">
+      <div class="world-rail-eyebrow">Change Design Direction</div>
+      <ul class="world-list" id="worldList" role="listbox" aria-label="Style worlds"></ul>
+    </aside>
+
+    <!-- Bottom action rail -->
+    <div class="stage-cta">
+      <a class="cta-link cta-link-primary" href="index.html#contact">
+        Begin Your Project <span aria-hidden="true">→</span>
+      </a>
+      <a class="cta-link" href="index.html#contact?type=private">
+        Schedule Private Consultation
+      </a>
+    </div>
+
+    <!-- Ambient gold dot, decorative -->
+    <div class="ambient-glow" aria-hidden="true"></div>
+  </main>
+
+  <!-- ─── WALKTHROUGH LIGHTBOX ─── -->
+  <div class="lightbox" id="walkthroughLightbox" role="dialog" aria-modal="true" aria-labelledby="lightboxTitle" hidden>
+    <div class="lightbox-backdrop" data-close></div>
+    <div class="lightbox-panel">
+      <button class="lightbox-close" type="button" data-close aria-label="Close walkthrough">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M5 5l14 14M19 5L5 19"/></svg>
+      </button>
+      <div class="lightbox-eyebrow">3D Walkthrough</div>
+      <h2 class="lightbox-title" id="lightboxTitle">Warm Modern</h2>
+      <div class="lightbox-frame" id="lightboxFrame">
+        <!-- iframe injected here when a real walkthrough URL is configured -->
+        <div class="lightbox-placeholder">
+          <div class="placeholder-mark" aria-hidden="true">
+            <svg viewBox="0 0 60 60" width="60" height="60" fill="none" stroke="#c19a4b" stroke-width="1.4" aria-hidden="true">
+              <rect x="6" y="6" width="48" height="48"/>
+              <path d="M6 22h48M22 6v48"/>
+              <circle cx="38" cy="38" r="6"/>
+            </svg>
+          </div>
+          <p class="placeholder-text">
+            Immersive walkthrough launching soon.<br/>
+            Schedule a <a href="index.html#contact">private tour</a> to step inside this direction.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── TOAST ─── -->
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+  <script src="assets/js/explore.js" defer></script>
+</body>
+</html>
