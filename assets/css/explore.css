@@ -945,6 +945,18 @@ div.pnlm-tooltip span::after {
   justify-content: flex-end;
   text-align: right;
 }
+/* Top corner masks — hide realtor brand cards / Mattertag pop-ups
+   (e.g. "Paula Lupic" business card on Modern Minimalist).
+   Larger coverage on the right where most agents place their card. */
+.lb-brand-mask-tl,
+.lb-brand-mask-tr {
+  top: 0;
+  bottom: auto;
+  height: 88px;
+  background: linear-gradient(180deg, rgba(8, 6, 4, 0.95) 0%, rgba(8, 6, 4, 0.85) 60%, rgba(8, 6, 4, 0) 100%);
+}
+.lb-brand-mask-tl { left: 0; width: 30%; border-bottom-left-radius: 0; }
+.lb-brand-mask-tr { right: 0; width: 38%; border-bottom-right-radius: 0; }
 .lb-brand-mask-text {
   font-family: "Cormorant Garamond", "Playfair Display", Georgia, serif;
   font-size: 11px;

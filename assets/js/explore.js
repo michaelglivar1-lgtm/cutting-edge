@@ -261,6 +261,9 @@ function openLightbox() {
         <div class="lb-brand-mask lb-brand-mask-br" aria-hidden="true">
           <span class="lb-brand-mask-text">${world.name}</span>
         </div>
+        <!-- Top corner masks hide Matterport realtor brand cards/Mattertags (e.g. Paula Lupic popup) -->
+        <div class="lb-brand-mask lb-brand-mask-tl" aria-hidden="true"></div>
+        <div class="lb-brand-mask lb-brand-mask-tr" aria-hidden="true"></div>
       </div>
       <div class="lb-vr-badge" aria-label="Compatible with VR headsets">
         <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="2" y="7" width="20" height="10" rx="2"/><circle cx="7.5" cy="12" r="1.5"/><circle cx="16.5" cy="12" r="1.5"/></svg>
