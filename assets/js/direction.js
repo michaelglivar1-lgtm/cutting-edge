@@ -341,4 +341,84 @@
       }
     });
   });
+
+  // ── Direction landing-page photo gallery ───────────────────────────
+  // If the world has a photoGallery, render a magazine-style image grid section
+  // after the rooms section so visitors see real reference homes inline.
+  (function renderDirectionGallery() {
+    const world = (window.CE_WORLDS || []).find((w) => w.id === worldId);
+    if (!world || !world.photoGallery || !world.photoGallery.length) return;
+
+    // Resolve asset path (direction pages live at /directions/ so use ../assets/img/...)
+    const photos = world.photoGallery.map(p => `../assets/img/${p}`);
+
+    // Build the section
+    const section = document.createElement("section");
+    section.className = "dir-section dir-gallery-section";
+    section.innerHTML = `
+      <div class="dir-section-eyebrow reveal">Reference Gallery</div>
+      <h2 class="dir-section-title reveal">${world.name} · The Aesthetic In The Wild</h2>
+      <p class="dir-section-sub reveal">A curated collection of estates that exemplify this direction. Click any image to view full-size.</p>
+      <div class="dir-gallery-grid">
+        ${photos.map((src, i) => `
+          <button type="button" class="dir-gallery-tile ${i === 0 ? 'is-feature' : ''}" data-photo-index="${i}" aria-label="View photo ${i + 1}">
+            <img src="${src}" alt="${world.name} reference photo ${i + 1}" loading="lazy" />
+          </button>
+        `).join("")}
+      </div>
+    `;
+
+    // Insert after the rooms section (or materials if no rooms)
+    const insertAfter = document.querySelector(".dir-rooms-section") ||
+                        document.querySelector(".dir-materials-section") ||
+                        document.querySelector(".dir-section");
+    if (insertAfter && insertAfter.parentNode) {
+      insertAfter.parentNode.insertBefore(section, insertAfter.nextSibling);
+    }
+
+    // Wire click-to-open-fullscreen-lightbox
+    let lightbox = null;
+    function openPhotoLightbox(startIdx) {
+      if (lightbox) lightbox.remove();
+      lightbox = document.createElement("div");
+      lightbox.className = "dir-gallery-lightbox";
+      lightbox.innerHTML = `
+        <button class="dir-gallery-lb-close" data-lb-close aria-label="Close" type="button">×</button>
+        <button class="dir-gallery-lb-arrow dir-gallery-lb-prev" data-lb-prev aria-label="Previous" type="button">‹</button>
+        <button class="dir-gallery-lb-arrow dir-gallery-lb-next" data-lb-next aria-label="Next" type="button">›</button>
+        <div class="dir-gallery-lb-counter"><span data-lb-current>${startIdx + 1}</span> / ${photos.length}</div>
+        <img class="dir-gallery-lb-img" data-lb-img src="${photos[startIdx]}" alt="" />
+      `;
+      document.body.appendChild(lightbox);
+      document.body.style.overflow = "hidden";
+      requestAnimationFrame(() => lightbox.classList.add("is-open"));
+
+      let idx = startIdx;
+      const img = lightbox.querySelector("[data-lb-img]");
+      const counter = lightbox.querySelector("[data-lb-current]");
+      function go(n) {
+        idx = (n + photos.length) % photos.length;
+        img.src = photos[idx];
+        counter.textContent = idx + 1;
+      }
+      lightbox.querySelector("[data-lb-prev]").addEventListener("click", () => go(idx - 1));
+      lightbox.querySelector("[data-lb-next]").addEventListener("click", () => go(idx + 1));
+      lightbox.querySelector("[data-lb-close]").addEventListener("click", close);
+      lightbox.addEventListener("click", (e) => { if (e.target === lightbox) close(); });
+      const keyHandler = (e) => {
+        if (e.key === "ArrowLeft") go(idx - 1);
+        else if (e.key === "ArrowRight") go(idx + 1);
+        else if (e.key === "Escape") close();
+      };
+      document.addEventListener("keydown", keyHandler);
+      function close() {
+        lightbox.classList.remove("is-open");
+        document.removeEventListener("keydown", keyHandler);
+        setTimeout(() => { lightbox.remove(); lightbox = null; document.body.style.overflow = ""; }, 280);
+      }
+    }
+    section.querySelectorAll("[data-photo-index]").forEach(tile => {
+      tile.addEventListener("click", () => openPhotoLightbox(parseInt(tile.dataset.photoIndex, 10)));
+    });
+  })();
 })();

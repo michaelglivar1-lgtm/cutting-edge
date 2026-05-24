@@ -45,6 +45,7 @@ window.CE_WORLDS = [
       "galleries/modern-minimalist/05.jpg",
       "galleries/modern-minimalist/06.jpg",
       "galleries/modern-minimalist/07.jpg",
+      "galleries/modern-minimalist/08.jpg",
     ],
   },
   {
@@ -113,6 +114,8 @@ window.CE_WORLDS = [
       "galleries/miami/02.jpg",
       "galleries/miami/03.jpg",
       "galleries/miami/04.jpg",
+      "galleries/miami/05.jpg",
+      "galleries/miami/06.jpg",
     ],
   },
   {
