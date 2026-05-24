@@ -207,4 +207,138 @@
     doc.text("BY PRIVATE INVITATION", W - 56, H - 62, { align: "right", charSpace: 1.5 });
     doc.save(`Cutting-Edge-MoodBoard-${world.name.replace(/\s+/g, "-")}.pdf`);
   }
+
+  // ── Material cards — click opens a luxe detail modal ───────────
+  // Each material card becomes an interactive button. Tapping/clicking opens a
+  // full-screen modal with the large swatch, name, story, application notes,
+  // and a "Pin to My Board" action that saves the material spec to localStorage
+  // so it surfaces on /saved alongside the saved directions.
+  const MAT_KEY = "cuttingedge:savedMaterials";
+  function getSavedMats() {
+    try { return JSON.parse(localStorage.getItem(MAT_KEY) || "[]"); } catch (_) { return []; }
+  }
+  function setSavedMats(list) {
+    try { localStorage.setItem(MAT_KEY, JSON.stringify(list)); } catch (_) {}
+  }
+  function matKey(directionId, name) { return `${directionId}::${name}`; }
+  function isMatSaved(directionId, name) {
+    const k = matKey(directionId, name);
+    return getSavedMats().some((m) => m.key === k);
+  }
+  function toggleMatSaved(directionId, name, note, swatch) {
+    const list = getSavedMats();
+    const k = matKey(directionId, name);
+    const idx = list.findIndex((m) => m.key === k);
+    if (idx >= 0) { list.splice(idx, 1); }
+    else { list.push({ key: k, directionId, name, note, swatch, savedAt: Date.now() }); }
+    setSavedMats(list);
+    return idx < 0; // returns true if it was added
+  }
+
+  // Build the modal container once and reuse it.
+  let matModal = null;
+  function ensureMatModal() {
+    if (matModal) return matModal;
+    matModal = document.createElement("div");
+    matModal.className = "mat-modal";
+    matModal.setAttribute("role", "dialog");
+    matModal.setAttribute("aria-modal", "true");
+    matModal.hidden = true;
+    matModal.innerHTML = `
+      <div class="mat-modal-backdrop" data-mat-close></div>
+      <div class="mat-modal-card" role="document">
+        <button type="button" class="mat-modal-close" data-mat-close aria-label="Close">×</button>
+        <div class="mat-modal-swatch" data-mat-swatch></div>
+        <div class="mat-modal-body">
+          <div class="mat-modal-eyebrow" data-mat-eyebrow>Material</div>
+          <h3 class="mat-modal-name" data-mat-name>Material</h3>
+          <p class="mat-modal-note" data-mat-note></p>
+          <dl class="mat-modal-meta">
+            <div><dt>Where we use it</dt><dd data-mat-where>Primary surfaces, throughout the public rooms.</dd></div>
+            <div><dt>How we specify</dt><dd data-mat-spec>Sourced from our European salvage and atelier partners, hand-finished on site.</dd></div>
+            <div><dt>Pairs beautifully with</dt><dd data-mat-pairs>The companion materials in this direction.</dd></div>
+          </dl>
+          <div class="mat-modal-actions">
+            <button type="button" class="scene-action scene-action-primary" data-mat-pin>
+              <span class="action-dot" aria-hidden="true"></span>
+              <span data-mat-pin-label>Pin to My Board</span>
+            </button>
+            <a class="scene-action" href="/saved" data-mat-view-board>
+              <svg class="action-icon" viewBox="0 0 16 20" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M2 2h12v17l-6-4-6 4z"/></svg>
+              View My Board
+            </a>
+          </div>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(matModal);
+    matModal.addEventListener("click", (e) => {
+      if (e.target.matches("[data-mat-close]")) closeMatModal();
+    });
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && !matModal.hidden) closeMatModal();
+    });
+    return matModal;
+  }
+  function openMatModal(card) {
+    const modal = ensureMatModal();
+    const name = card.querySelector(".dir-material-name")?.textContent?.trim() || "";
+    const note = card.querySelector(".dir-material-note")?.textContent?.trim() || "";
+    const swatchEl = card.querySelector(".dir-material-swatch");
+    const swatchColor = swatchEl ? getComputedStyle(swatchEl).backgroundColor : "#3a2317";
+    const world = (window.CE_WORLDS || []).find((w) => w.id === worldId);
+
+    modal.querySelector("[data-mat-swatch]").style.backgroundColor = swatchColor;
+    modal.querySelector("[data-mat-eyebrow]").textContent = world ? `${world.name} · Material` : "Material";
+    modal.querySelector("[data-mat-name]").textContent = name;
+    modal.querySelector("[data-mat-note]").textContent = note;
+
+    // Build the "Pairs beautifully with" line from the other materials in this world.
+    if (world && Array.isArray(world.materials)) {
+      const others = world.materials.filter((m) => m.name !== name).slice(0, 3).map((m) => m.name);
+      modal.querySelector("[data-mat-pairs]").textContent = others.length
+        ? others.join(", ") + "."
+        : "The companion materials in this direction.";
+    }
+
+    // Pin button reflects saved state.
+    const pinBtn = modal.querySelector("[data-mat-pin]");
+    const pinLabel = modal.querySelector("[data-mat-pin-label]");
+    function refreshPin() {
+      const saved = isMatSaved(worldId, name);
+      pinBtn.classList.toggle("is-saved", saved);
+      pinLabel.textContent = saved ? "Pinned to My Board" : "Pin to My Board";
+    }
+    refreshPin();
+    pinBtn.onclick = () => {
+      const added = toggleMatSaved(worldId, name, note, swatchColor);
+      refreshPin();
+      showToast(added ? `Pinned ${name} to your board` : `Removed ${name} from your board`);
+    };
+
+    modal.hidden = false;
+    document.body.style.overflow = "hidden";
+    requestAnimationFrame(() => modal.classList.add("is-open"));
+  }
+  function closeMatModal() {
+    if (!matModal) return;
+    matModal.classList.remove("is-open");
+    setTimeout(() => {
+      matModal.hidden = true;
+      document.body.style.overflow = "";
+    }, 280);
+  }
+
+  document.querySelectorAll(".dir-material-card").forEach((card) => {
+    card.setAttribute("role", "button");
+    card.setAttribute("tabindex", "0");
+    card.classList.add("is-interactive");
+    card.addEventListener("click", () => openMatModal(card));
+    card.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        openMatModal(card);
+      }
+    });
+  });
 })();
