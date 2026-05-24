@@ -16,8 +16,8 @@
     { href: root + "index.html", label: "Atelier" },
     { href: root + "3d-explore.html", label: "3D Explore" },
     { href: root + "directions/", label: "Nine Directions" },
+    { href: root + "intelligence.html", label: "Intelligence" },
     { href: root + "saved.html", label: "My Board" },
-    { href: root + "index.html#process", label: "Process" },
     { href: root + "index.html#contact", label: "Begin a Project" },
   ];
 
