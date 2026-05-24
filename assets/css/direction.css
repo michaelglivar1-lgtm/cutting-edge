@@ -658,3 +658,24 @@
   .mat-modal-note { font-size: 16px; }
   .mat-modal-actions .scene-action { flex: 1; justify-content: center; }
 }
+
+/* Breakout direction badge on the index card */
+.dir-related-card.is-breakout {
+  position: relative;
+  outline: 1px solid rgba(193, 154, 75, 0.5);
+  outline-offset: -1px;
+}
+.dir-related-badge {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  z-index: 2;
+  padding: 5px 10px;
+  background: #c19a4b;
+  color: #0a0806;
+  font-size: 9px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  font-weight: 700;
+  font-family: "Inter", sans-serif;
+}

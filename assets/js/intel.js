@@ -19,6 +19,7 @@
 
     renderTicker(data);
     renderSnapshot(data);
+    renderBreakoutGallery();
     renderStyleMomentum(data);
     renderCityHeat(data);
     renderFinishTrends(data);
@@ -125,6 +126,14 @@
     el.classList.remove("is-flash");
     void el.offsetWidth;
     el.classList.add("is-flash");
+  }
+
+  // ─── Breakout gallery: load data-photo into background-image ───
+  function renderBreakoutGallery() {
+    document.querySelectorAll(".intel-breakout-photo[data-photo]").forEach(el => {
+      const path = el.dataset.photo;
+      if (path) el.style.backgroundImage = `url(assets/img/${path})`;
+    });
   }
 
   // ─── Animated counter helper ──────────────────────────

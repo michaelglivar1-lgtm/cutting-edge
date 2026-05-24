@@ -848,3 +848,172 @@
   .intel-cta h2 { font-size: clamp(28px, 8vw, 40px); margin-bottom: 14px; }
   .intel-cta p { font-size: 13px; margin-bottom: 24px; }
 }
+
+/* ─── Breakout Direction (Nancy Meyers × Ralph Lauren) ────── */
+.intel-breakout-section {
+  border-top: 1px solid var(--intel-gold-soft);
+  border-bottom: 1px solid var(--intel-line);
+  background:
+    radial-gradient(ellipse at top right, rgba(193, 154, 75, 0.06), transparent 60%),
+    var(--intel-bg);
+}
+.intel-breakout-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+.intel-breakout-pulse {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #d4ad5d;
+  box-shadow: 0 0 0 0 rgba(212, 173, 93, 0.7);
+  animation: breakoutPulse 1.8s ease-out infinite;
+}
+@keyframes breakoutPulse {
+  0%   { box-shadow: 0 0 0 0 rgba(212, 173, 93, 0.8); }
+  100% { box-shadow: 0 0 0 14px rgba(212, 173, 93, 0); }
+}
+.intel-breakout-stats {
+  display: flex;
+  gap: 28px;
+  flex-shrink: 0;
+}
+.intel-breakout-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  text-align: right;
+  padding: 0 0 0 28px;
+  border-left: 1px solid var(--intel-line);
+}
+.intel-breakout-stat:first-child { border-left: 0; padding-left: 0; }
+.intel-breakout-stat-num {
+  font-family: "Cormorant Garamond", "Playfair Display", Georgia, serif;
+  font-size: 44px;
+  line-height: 1;
+  color: var(--intel-gold);
+  font-weight: 400;
+  letter-spacing: -0.01em;
+}
+.intel-breakout-stat-label {
+  font-size: 9px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--intel-ink-dim);
+  margin-top: 6px;
+}
+
+.intel-breakout-gallery {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(2, 280px);
+  gap: 8px;
+}
+.intel-breakout-photo {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  background-color: #1a1410;
+  background-size: cover;
+  background-position: center;
+  text-decoration: none;
+  transition: transform 0.4s ease;
+}
+.intel-breakout-photo[data-photo] { /* JS will set bg-image from data attribute */ }
+.intel-breakout-photo.is-feature {
+  grid-column: span 2;
+  grid-row: span 2;
+}
+.intel-breakout-photo::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 60%, rgba(8, 6, 4, 0.85) 100%);
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+.intel-breakout-photo:hover {
+  transform: scale(1.015);
+}
+.intel-breakout-caption {
+  position: absolute;
+  bottom: 14px;
+  left: 16px;
+  right: 16px;
+  z-index: 2;
+  font-family: "Cormorant Garamond", "Playfair Display", Georgia, serif;
+  font-style: italic;
+  font-size: 15px;
+  color: #f3e8d2;
+  line-height: 1.25;
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+.intel-breakout-photo:hover .intel-breakout-caption {
+  opacity: 1;
+  transform: translateY(0);
+}
+.intel-breakout-photo.is-feature .intel-breakout-caption {
+  font-size: 22px;
+  opacity: 1;
+  transform: translateY(0);
+  bottom: 22px;
+  left: 26px;
+  right: 26px;
+}
+.intel-breakout-photo.is-feature::before {
+  content: "Featured";
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  z-index: 2;
+  padding: 6px 12px;
+  background: var(--intel-gold);
+  color: #0a0806;
+  font-size: 9px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+@media (max-width: 960px) {
+  .intel-breakout-gallery {
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: 320px repeat(4, 200px);
+  }
+  .intel-breakout-photo.is-feature {
+    grid-column: 1 / -1;
+    grid-row: span 1;
+  }
+}
+@media (max-width: 720px) {
+  .intel-breakout-section .intel-section-head { flex-direction: column; align-items: stretch; }
+  .intel-breakout-stats {
+    gap: 0;
+    margin-top: 18px;
+    padding-top: 18px;
+    border-top: 1px solid var(--intel-line);
+    justify-content: space-between;
+  }
+  .intel-breakout-stat {
+    padding: 0 12px;
+    align-items: center;
+    text-align: center;
+    flex: 1;
+  }
+  .intel-breakout-stat:first-child { padding-left: 0; }
+  .intel-breakout-stat:last-child { padding-right: 0; }
+  .intel-breakout-stat-num { font-size: 30px; }
+  .intel-breakout-gallery {
+    grid-template-columns: 1fr;
+    grid-template-rows: repeat(8, 240px);
+    gap: 6px;
+  }
+  .intel-breakout-photo.is-feature {
+    grid-row: span 1;
+  }
+  .intel-breakout-photo.is-feature .intel-breakout-caption { font-size: 18px; }
+  .intel-breakout-caption { opacity: 1; transform: none; font-size: 13px; }
+}
