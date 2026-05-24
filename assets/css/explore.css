@@ -1245,3 +1245,166 @@ div.pnlm-tooltip span::after {
     transition: opacity 0.2s ease !important;
   }
 }
+
+/* ─── Photo gallery lightbox (no-Matterport fallback) ─────── */
+.lb-gallery {
+  position: relative;
+  display: grid;
+  grid-template-rows: 1fr auto auto;
+  height: 100%;
+  background: #0a0806;
+  color: #f3e8d2;
+  overflow: hidden;
+}
+.lb-gallery-stage {
+  position: relative;
+  overflow: hidden;
+  background: #050402;
+  outline: none;
+}
+.lb-gallery-slide {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 0.45s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.lb-gallery-slide.is-active { opacity: 1; z-index: 2; }
+.lb-gallery-slide img {
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  cursor: zoom-in;
+  transition: transform 0.4s ease;
+}
+.lb-gallery-slide.is-zoomed img {
+  cursor: zoom-out;
+  transform: scale(1.6);
+}
+.lb-gallery-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 5;
+  width: 56px;
+  height: 56px;
+  border: 1px solid rgba(193, 154, 75, 0.5);
+  background: rgba(8, 6, 4, 0.75);
+  color: #c19a4b;
+  font-size: 32px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: background 0.2s ease, color 0.2s ease;
+}
+.lb-gallery-arrow:hover { background: rgba(193, 154, 75, 0.18); color: #f3e8d2; }
+.lb-gallery-arrow-prev { left: 18px; }
+.lb-gallery-arrow-next { right: 18px; }
+.lb-gallery-counter {
+  position: absolute;
+  top: 18px;
+  left: 18px;
+  z-index: 5;
+  padding: 6px 12px;
+  background: rgba(8, 6, 4, 0.75);
+  border: 1px solid rgba(193, 154, 75, 0.3);
+  color: #c19a4b;
+  font-family: "JetBrains Mono", "SF Mono", monospace;
+  font-size: 12px;
+  letter-spacing: 0.12em;
+}
+.lb-gallery-zoom-hint {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  z-index: 5;
+  padding: 6px 12px;
+  font-size: 10px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: rgba(243, 232, 210, 0.55);
+  background: rgba(8, 6, 4, 0.55);
+  border: 1px solid rgba(243, 232, 210, 0.12);
+}
+.lb-gallery-thumbs {
+  display: flex;
+  gap: 8px;
+  padding: 14px 18px;
+  background: #0a0806;
+  border-top: 1px solid rgba(193, 154, 75, 0.16);
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+}
+.lb-gallery-thumbs::-webkit-scrollbar { height: 4px; }
+.lb-gallery-thumbs::-webkit-scrollbar-thumb { background: rgba(193, 154, 75, 0.3); }
+.lb-gallery-thumb {
+  flex-shrink: 0;
+  width: 96px;
+  height: 64px;
+  padding: 0;
+  border: 1px solid transparent;
+  background: #050402;
+  cursor: pointer;
+  overflow: hidden;
+  scroll-snap-align: center;
+  opacity: 0.5;
+  transition: opacity 0.25s ease, border-color 0.25s ease, transform 0.25s ease;
+}
+.lb-gallery-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.lb-gallery-thumb.is-active {
+  opacity: 1;
+  border-color: #c19a4b;
+}
+.lb-gallery-thumb:hover { opacity: 0.85; }
+.lb-gallery-caption {
+  padding: 22px 28px 24px;
+  background: linear-gradient(180deg, #0a0806, #050402);
+  border-top: 1px solid rgba(193, 154, 75, 0.16);
+}
+.lb-gallery-caption-eyebrow {
+  font-size: 10px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: #c19a4b;
+  margin-bottom: 8px;
+}
+.lb-gallery-caption-text {
+  font-family: "Cormorant Garamond", "Playfair Display", Georgia, serif;
+  font-style: italic;
+  font-size: 16px;
+  color: rgba(243, 232, 210, 0.78);
+  margin: 0 0 16px;
+  line-height: 1.5;
+  max-width: 80ch;
+}
+.lb-gallery-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 720px) {
+  .lb-gallery-arrow { width: 44px; height: 44px; font-size: 24px; }
+  .lb-gallery-arrow-prev { left: 8px; }
+  .lb-gallery-arrow-next { right: 8px; }
+  .lb-gallery-counter { font-size: 10px; padding: 4px 8px; top: 10px; left: 10px; }
+  .lb-gallery-zoom-hint { display: none; }
+  .lb-gallery-thumbs { padding: 10px 12px; gap: 6px; }
+  .lb-gallery-thumb { width: 64px; height: 44px; }
+  .lb-gallery-caption { padding: 16px 18px; }
+  .lb-gallery-caption-text { font-size: 14px; }
+  .lb-gallery-actions .scene-action { flex: 1; justify-content: center; }
+}

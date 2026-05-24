@@ -301,10 +301,54 @@ function openLightbox() {
       // Failsafe: fade after 10s no matter what.
       setTimeout(dismissHint, 10000);
     }
+  } else if (world.photoGallery && world.photoGallery.length) {
+    // No Matterport tour, but we have a curated luxury photo gallery.
+    // Render a magazine-style lightbox: big hero image + thumbnail strip below,
+    // arrow keys / swipe / click to navigate, optional click-to-zoom on the hero.
+    lbFrame.classList.remove("has-pano");
+    lbFrame.classList.add("has-gallery");
+    const photos = world.photoGallery;
+    lbFrame.innerHTML = `
+      <div class="lb-gallery" data-gallery-root>
+        <div class="lb-gallery-stage" data-gallery-stage tabindex="0">
+          ${photos.map((src, i) => `
+            <div class="lb-gallery-slide ${i === 0 ? 'is-active' : ''}" data-slide="${i}">
+              <img src="assets/img/${src}" alt="${world.name} · view ${i + 1}" loading="${i === 0 ? 'eager' : 'lazy'}" data-zoom-target />
+            </div>
+          `).join("")}
+          <button class="lb-gallery-arrow lb-gallery-arrow-prev" data-gallery-prev aria-label="Previous photo" type="button">‹</button>
+          <button class="lb-gallery-arrow lb-gallery-arrow-next" data-gallery-next aria-label="Next photo" type="button">›</button>
+          <div class="lb-gallery-counter">
+            <span data-gallery-current>1</span> / ${photos.length}
+          </div>
+          <div class="lb-gallery-zoom-hint" aria-hidden="true">Click image to zoom</div>
+        </div>
+        <div class="lb-gallery-thumbs" data-gallery-thumbs>
+          ${photos.map((src, i) => `
+            <button type="button" class="lb-gallery-thumb ${i === 0 ? 'is-active' : ''}" data-thumb="${i}" aria-label="View photo ${i + 1}">
+              <img src="assets/img/${src}" alt="" loading="lazy" />
+            </button>
+          `).join("")}
+        </div>
+        <div class="lb-gallery-caption">
+          <div class="lb-gallery-caption-eyebrow">${world.name} · Reference Gallery</div>
+          <p class="lb-gallery-caption-text">A curated collection of estates that exemplify the <em>${world.name}</em> direction. We build commissioned residences in this vocabulary throughout Palm Beach, Miami, Naples, and Sarasota.</p>
+          <div class="lb-gallery-actions">
+            <a class="scene-action scene-action-primary" href="index.html#contact" data-tour="${world.id}">
+              <span class="action-dot" aria-hidden="true"></span>
+              Begin a Project Like This
+            </a>
+            <a class="scene-action" href="directions/${world.id}.html">
+              <svg class="action-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M3 10h14M11 4l6 6-6 6"/></svg>
+              View Full Direction
+            </a>
+          </div>
+        </div>
+      </div>
+    `;
+    initGalleryLightbox(lbFrame.querySelector("[data-gallery-root]"));
   } else {
-    // No real walkthrough wired — show honest "By Private Invitation" placeholder.
-    // (Used for Calabasas Minimalist, Mediterranean Estate, Spanish Transitional
-    // until real Cutting Edge captures or matching luxury Matterports are sourced.)
+    // No walkthrough AND no gallery — honest "By Private Invitation" placeholder.
     lbFrame.classList.remove("has-pano");
     lbFrame.innerHTML = `
       <div class="lightbox-placeholder">
@@ -455,6 +499,69 @@ function mountPanorama(world) {
   } catch (e) {
     console.error("mountPanorama failed:", e);
   }
+}
+
+// ── Photo gallery lightbox (no-Matterport fallback) ───────────────────────
+function initGalleryLightbox(root) {
+  if (!root) return;
+  const stage = root.querySelector("[data-gallery-stage]");
+  const slides = root.querySelectorAll(".lb-gallery-slide");
+  const thumbs = root.querySelectorAll("[data-thumb]");
+  const current = root.querySelector("[data-gallery-current]");
+  const prevBtn = root.querySelector("[data-gallery-prev]");
+  const nextBtn = root.querySelector("[data-gallery-next]");
+  let idx = 0;
+  const total = slides.length;
+
+  function go(n) {
+    idx = (n + total) % total;
+    slides.forEach((s, i) => s.classList.toggle("is-active", i === idx));
+    thumbs.forEach((t, i) => t.classList.toggle("is-active", i === idx));
+    if (current) current.textContent = idx + 1;
+    // Scroll the active thumb into view
+    const activeThumb = thumbs[idx];
+    if (activeThumb && activeThumb.scrollIntoView) {
+      activeThumb.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
+    }
+  }
+
+  prevBtn?.addEventListener("click", () => go(idx - 1));
+  nextBtn?.addEventListener("click", () => go(idx + 1));
+  thumbs.forEach((t) => t.addEventListener("click", () => go(parseInt(t.dataset.thumb, 10))));
+
+  // Keyboard navigation when stage focused
+  stage?.addEventListener("keydown", (e) => {
+    if (e.key === "ArrowLeft") { e.preventDefault(); go(idx - 1); }
+    else if (e.key === "ArrowRight") { e.preventDefault(); go(idx + 1); }
+  });
+  // Document-level arrow keys too (only when this gallery is in view)
+  const docKey = (e) => {
+    if (!document.body.contains(root)) {
+      document.removeEventListener("keydown", docKey);
+      return;
+    }
+    if (e.key === "ArrowLeft") go(idx - 1);
+    else if (e.key === "ArrowRight") go(idx + 1);
+  };
+  document.addEventListener("keydown", docKey);
+
+  // Touch swipe
+  let startX = 0;
+  stage?.addEventListener("touchstart", (e) => { startX = e.touches[0].clientX; }, { passive: true });
+  stage?.addEventListener("touchend", (e) => {
+    const dx = e.changedTouches[0].clientX - startX;
+    if (dx > 40) go(idx - 1);
+    else if (dx < -40) go(idx + 1);
+  }, { passive: true });
+
+  // Click-to-zoom on the active image
+  slides.forEach((slide) => {
+    const img = slide.querySelector("img");
+    if (!img) return;
+    img.addEventListener("click", () => {
+      slide.classList.toggle("is-zoomed");
+    });
+  });
 }
 
 function closeLightbox() {
