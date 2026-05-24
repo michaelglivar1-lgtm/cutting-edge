@@ -228,13 +228,30 @@ function openLightbox() {
   if (world.walkthrough) {
     lbFrame.classList.remove("has-pano");
     // Real Matterport / Kuula iframe path. Build URL with embed-friendly params
-    // hl=0 hides highlights, play=1 starts the tour, qs=1 enables Quickstart UI.
+    // hl=0 hides highlights, play=1 starts the tour, qs=1 enables Quickstart UI,
+    // brand=0 hides Matterport branding, mt=0 hides Mattertags, search=0 hides search,
+    // kb=0 disables keyboard hints, hr=0 hides highlight reel, dh=1 shows dollhouse on entry.
     const src = world.walkthrough.includes("?")
-      ? `${world.walkthrough}&hl=0&play=1&qs=1`
-      : `${world.walkthrough}?hl=0&play=1&qs=1`;
+      ? `${world.walkthrough}&hl=0&play=1&qs=1&brand=0&mt=0&search=0&kb=0&hr=0&dh=1&title=0`
+      : `${world.walkthrough}?hl=0&play=1&qs=1&brand=0&mt=0&search=0&kb=0&hr=0&dh=1&title=0`;
+    // Beautiful gold "Tap to Begin" overlay — sits over Matterport's poster image so
+    // mobile users don't see the low-res poster + white play button and think it's broken.
+    // Dismisses on first tap, after which Matterport's own play button is one tap away
+    // OR the click passes through and starts the tour.
     lbFrame.innerHTML = `
       <div class="lb-iframe-wrap">
-        <iframe src="${src}" title="${world.name} walkthrough" allow="xr-spatial-tracking; fullscreen; vr; gyroscope; accelerometer" allowfullscreen></iframe>
+        <iframe src="${src}" title="${world.name} walkthrough" allow="xr-spatial-tracking; fullscreen; vr; gyroscope; accelerometer; autoplay" allowfullscreen></iframe>
+        <button type="button" class="lb-begin-overlay" data-begin-walkthrough aria-label="Begin walkthrough">
+          <span class="lb-begin-eyebrow">${world.walkthroughCredit ? world.walkthroughCredit.split(" · ")[0] : world.name}</span>
+          <span class="lb-begin-ring" aria-hidden="true">
+            <svg viewBox="0 0 64 64" width="64" height="64" fill="none" stroke="currentColor" stroke-width="1.4">
+              <circle cx="32" cy="32" r="30"/>
+              <path d="M26 22l14 10-14 10z" fill="currentColor" stroke="none"/>
+            </svg>
+          </span>
+          <span class="lb-begin-label">Tap to Begin Walkthrough</span>
+          <span class="lb-begin-sub">Drag to look · Pinch to zoom · Crystal clear in 3D</span>
+        </button>
       </div>
       <div class="lb-vr-badge" aria-label="Compatible with VR headsets">
         <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="2" y="7" width="20" height="10" rx="2"/><circle cx="7.5" cy="12" r="1.5"/><circle cx="16.5" cy="12" r="1.5"/></svg>
@@ -254,6 +271,23 @@ function openLightbox() {
         </div>
       ` : ""}
     `;
+    // Hook up the gold "Tap to Begin" overlay dismiss — fade out + remove,
+    // and try to focus/click the iframe so Matterport's own play state engages.
+    const beginBtn = lbFrame.querySelector("[data-begin-walkthrough]");
+    const beginIframe = lbFrame.querySelector(".lb-iframe-wrap iframe");
+    if (beginBtn && beginIframe) {
+      const dismiss = (e) => {
+        if (e) { e.preventDefault(); e.stopPropagation(); }
+        beginBtn.classList.add("is-dismissed");
+        // Focus iframe so any subsequent gesture is treated as a user-initiated
+        // interaction by Safari’s autoplay policy.
+        try { beginIframe.focus({ preventScroll: true }); } catch (_) {}
+        // Remove from DOM after fade transition completes so touch events reach the iframe.
+        setTimeout(() => beginBtn.remove(), 380);
+      };
+      beginBtn.addEventListener("click", dismiss);
+      beginBtn.addEventListener("touchend", dismiss, { passive: false });
+    }
   } else {
     // No real walkthrough wired — show honest "By Private Invitation" placeholder.
     // (Used for Calabasas Minimalist, Mediterranean Estate, Spanish Transitional

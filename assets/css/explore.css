@@ -852,6 +852,93 @@ div.pnlm-tooltip span::after {
 /* VR badge */
 .lb-iframe-wrap { position: relative; width: 100%; height: 100%; }
 
+/* Gold "Tap to Begin Walkthrough" overlay — sits over Matterport's poster image
+   so mobile users don't think the low-res poster + white play button means it's broken.
+   Dismissed on tap; iframe receives the interactive 3D tour underneath. */
+.lb-begin-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  padding: 28px;
+  border: 0;
+  cursor: pointer;
+  color: #c19a4b;
+  background:
+    radial-gradient(ellipse at center, rgba(15, 12, 9, 0.55) 0%, rgba(8, 6, 5, 0.92) 78%),
+    linear-gradient(180deg, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.85));
+  backdrop-filter: blur(14px) saturate(1.1);
+  -webkit-backdrop-filter: blur(14px) saturate(1.1);
+  transition: opacity 320ms ease, transform 320ms ease;
+  text-align: center;
+  font-family: inherit;
+  -webkit-tap-highlight-color: transparent;
+}
+.lb-begin-overlay::before {
+  content: "";
+  position: absolute;
+  inset: 14px;
+  border: 1px solid rgba(193, 154, 75, 0.25);
+  pointer-events: none;
+}
+.lb-begin-overlay::after {
+  content: "";
+  position: absolute;
+  inset: 22px;
+  border: 1px solid rgba(193, 154, 75, 0.08);
+  pointer-events: none;
+}
+.lb-begin-overlay.is-dismissed {
+  opacity: 0;
+  transform: scale(1.02);
+  pointer-events: none;
+}
+.lb-begin-eyebrow {
+  font-size: 10px;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: rgba(193, 154, 75, 0.78);
+  font-weight: 500;
+}
+.lb-begin-ring {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #c19a4b;
+  filter: drop-shadow(0 6px 22px rgba(193, 154, 75, 0.35));
+  animation: lbBeginPulse 2.4s ease-in-out infinite;
+}
+@keyframes lbBeginPulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.06); opacity: 0.85; }
+}
+.lb-begin-label {
+  font-family: "Cormorant Garamond", "Playfair Display", Georgia, serif;
+  font-size: 26px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  color: #f3e8d2;
+  line-height: 1.1;
+}
+.lb-begin-sub {
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(243, 232, 210, 0.6);
+  font-weight: 400;
+}
+@media (max-width: 720px) {
+  .lb-begin-overlay { gap: 14px; padding: 20px; }
+  .lb-begin-eyebrow { font-size: 9px; letter-spacing: 0.28em; }
+  .lb-begin-ring svg { width: 56px; height: 56px; }
+  .lb-begin-label { font-size: 21px; }
+  .lb-begin-sub { font-size: 9.5px; letter-spacing: 0.18em; }
+}
+
 /* Reference-walkthrough credit overlay */
 .lb-credit {
   position: absolute;
