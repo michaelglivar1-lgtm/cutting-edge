@@ -62,6 +62,7 @@ const lbFrame     = document.getElementById("lightboxFrame");
 const toast       = document.getElementById("toast");
 const boardCount  = document.getElementById("boardCount");
 const sceneMeta   = document.getElementById("sceneMeta");
+const viewDirLink = document.getElementById("viewDirectionLink");
 
 // Compare DOM
 const compareCanvas   = document.getElementById("compareCanvas");
@@ -171,6 +172,11 @@ function setActive(id, animate = false) {
   const idx = WORLDS.findIndex(w => w.id === id) + 1;
   indexEl.textContent = String(idx).padStart(2, "0");
 
+  if (viewDirLink) {
+    viewDirLink.href = `directions/${id}.html`;
+    viewDirLink.setAttribute("aria-label", `View full ${world.name} direction page`);
+  }
+
   activeId = id;
   const order = idx - 1;
   preload(WORLDS[(order + 1) % WORLDS.length].id);
@@ -212,8 +218,21 @@ function openLightbox() {
   if (!world) return;
   lbTitle.textContent = `${world.name} — Walkthrough`;
 
+  // Build the in-walkthrough direction switcher (lets users "step into" another world)
+  const switcher = WORLDS.map(w => `
+    <button class="lb-switch-pill ${w.id === world.id ? 'is-active' : ''}" type="button" data-world="${w.id}">${w.name}</button>
+  `).join("");
+
   if (world.walkthrough) {
-    lbFrame.innerHTML = `<iframe src="${world.walkthrough}" title="${world.name} walkthrough" allow="xr-spatial-tracking; fullscreen; vr; gyroscope; accelerometer" allowfullscreen></iframe>`;
+    lbFrame.innerHTML = `
+      <div class="lb-iframe-wrap">
+        <iframe src="${world.walkthrough}" title="${world.name} walkthrough" allow="xr-spatial-tracking; fullscreen; vr; gyroscope; accelerometer" allowfullscreen></iframe>
+      </div>
+      <div class="lb-vr-badge" aria-label="Compatible with VR headsets">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="2" y="7" width="20" height="10" rx="2"/><circle cx="7.5" cy="12" r="1.5"/><circle cx="16.5" cy="12" r="1.5"/></svg>
+        VR Ready · Quest · Vision Pro
+      </div>
+    `;
   } else {
     lbFrame.innerHTML = `
       <div class="lightbox-placeholder">
@@ -224,16 +243,21 @@ function openLightbox() {
             <circle cx="38" cy="38" r="6"/>
           </svg>
         </div>
-        <div class="placeholder-eyebrow">By Private Invitation</div>
+        <div class="placeholder-eyebrow">By Private Invitation · VR Ready</div>
         <p class="placeholder-text">
           Our cinematic 3D walkthrough of <em>${world.name}</em> is reserved
-          for engaged clients. Request a private tour to step inside this direction
-          alongside our principal architect.
+          for engaged clients — viewable on desktop, mobile, and in true VR on
+          Meta Quest or Apple Vision Pro. Request a private tour to step inside
+          this direction alongside our principal architect.
         </p>
         <div class="placeholder-actions">
           <a class="scene-action scene-action-primary" href="index.html#contact" data-tour="${world.id}">
             <span class="action-dot" aria-hidden="true"></span>
             Request Private Tour
+          </a>
+          <a class="scene-action" href="directions/${world.id}.html">
+            <svg class="action-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M3 10h14M11 4l6 6-6 6"/></svg>
+            View Full Direction
           </a>
           <button class="scene-action" type="button" data-save-from-lightbox>
             <svg class="action-icon" viewBox="0 0 16 20" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M2 2h12v17l-6-4-6 4z"/></svg>
@@ -242,12 +266,33 @@ function openLightbox() {
         </div>
       </div>
     `;
-    // Wire the inline save button
     lbFrame.querySelector("[data-save-from-lightbox]")?.addEventListener("click", () => {
       handleSave();
       closeLightbox();
     });
   }
+
+  // Inject the in-walkthrough direction switcher under the frame
+  let switcherEl = document.getElementById("lbSwitcher");
+  if (!switcherEl) {
+    switcherEl = document.createElement("div");
+    switcherEl.id = "lbSwitcher";
+    switcherEl.className = "lb-switcher";
+    lbFrame.parentElement.insertBefore(switcherEl, lbFrame.nextSibling);
+  }
+  switcherEl.innerHTML = `
+    <div class="lb-switcher-eyebrow">Step into another direction</div>
+    <div class="lb-switcher-pills">${switcher}</div>
+  `;
+  switcherEl.querySelectorAll(".lb-switch-pill").forEach(p => {
+    p.addEventListener("click", () => {
+      const id = p.dataset.world;
+      setActive(id, false);
+      // Re-open with new world's walkthrough/placeholder
+      openLightbox();
+    });
+  });
+
   lightbox.hidden = false;
   document.body.style.overflow = "hidden";
 }
@@ -255,6 +300,8 @@ function openLightbox() {
 function closeLightbox() {
   lightbox.hidden = true;
   lbFrame.innerHTML = "";
+  const sw = document.getElementById("lbSwitcher");
+  if (sw) sw.remove();
   document.body.style.overflow = "";
 }
 
@@ -617,10 +664,27 @@ document.addEventListener("keydown", (e) => {
 });
 
 /* ── Init ────────────────────────────────────────────────── */
+function parseHash() {
+  const h = (window.location.hash || "").replace(/^#/, "");
+  const params = {};
+  h.split("&").forEach(kv => {
+    const [k, v] = kv.split("=");
+    if (k) params[decodeURIComponent(k)] = v ? decodeURIComponent(v) : "";
+  });
+  return params;
+}
+
 let startId = "warm-modern";
+const params = parseHash();
 const saved = getSaved();
-if (saved.length > 0 && WORLDS.some(w => w.id === saved[saved.length - 1].id)) {
+if (params.world && WORLDS.some(w => w.id === params.world)) {
+  startId = params.world;
+} else if (saved.length > 0 && WORLDS.some(w => w.id === saved[saved.length - 1].id)) {
   startId = saved[saved.length - 1].id;
 }
 setActive(startId, false);
 updateSaveBtn();
+
+if (params.tour === "1" || params.tour === "true") {
+  setTimeout(openLightbox, 500);
+}

@@ -7,7 +7,7 @@
 const WORLDS    = window.CE_WORLDS;
 const ASSET_BASE = window.CE_ASSET_BASE;
 const SAVE_KEY  = window.CE_SAVE_KEY;
-const STUDIO_EMAIL = "info@cuttingedgedesignfl.com"; // change here if you have a different inbox
+const STUDIO_EMAIL = "michaelglivar1@gmail.com"; // primary inbox — change to info@cuttingedgedesignfl.com once that's monitored
 
 function getSaved() {
   try {
