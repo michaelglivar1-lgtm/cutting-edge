@@ -242,45 +242,58 @@ function openLightbox() {
       </div>
       ${world.walkthroughCredit ? `
         <div class="lb-credit">
-          <span class="lb-credit-eyebrow">Reference Walkthrough</span>
-          <span class="lb-credit-text">${world.walkthroughCredit}${world.walkthroughHostedBy ? ` — <em>${world.walkthroughHostedBy}</em>` : ""}</span>
+          <span class="lb-credit-eyebrow">Reference Estate · Sotheby's International</span>
+          <span class="lb-credit-text">${world.walkthroughCredit}</span>
+          ${(world.walkthroughPrice || world.walkthroughSqft) ? `
+            <span class="lb-credit-stats">
+              ${world.walkthroughPrice ? `<span class="lb-credit-price">${world.walkthroughPrice}</span>` : ""}
+              ${world.walkthroughPrice && world.walkthroughSqft ? " · " : ""}
+              ${world.walkthroughSqft ? `<span>${world.walkthroughSqft}</span>` : ""}
+            </span>
+          ` : ""}
         </div>
       ` : ""}
     `;
   } else {
-    // Pannellum 360 panorama path — default for every world until real walkthroughs are wired
-    lbFrame.classList.add("has-pano");
+    // No real walkthrough wired — show honest "By Private Invitation" placeholder.
+    // (Used for Calabasas Minimalist, Mediterranean Estate, Spanish Transitional
+    // until real Cutting Edge captures or matching luxury Matterports are sourced.)
+    lbFrame.classList.remove("has-pano");
     lbFrame.innerHTML = `
-      <div id="panoStage" class="pano-stage"></div>
-      <div class="pano-instructions">
-        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M2 12h20M12 2v20M5 5l14 14M19 5l-14 14"/></svg>
-        <span>Drag to look around · Pinch / scroll to zoom · Tap a hotspot to switch direction</span>
-      </div>
-      <div class="pano-loading" id="panoLoading">
-        <span class="action-spinner"></span>
-        <span>Composing ${world.name}…</span>
-      </div>
-      <div class="lb-vr-badge" aria-label="Compatible with VR headsets">
-        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="2" y="7" width="20" height="10" rx="2"/><circle cx="7.5" cy="12" r="1.5"/><circle cx="16.5" cy="12" r="1.5"/></svg>
-        360° · VR Ready
-      </div>
-      <div class="pano-actions">
-        <a class="scene-action scene-action-primary" href="index.html#contact" data-tour="${world.id}">
-          <span class="action-dot" aria-hidden="true"></span>
-          Request Private Tour
-        </a>
-        <a class="scene-action" href="directions/${world.id}.html">
-          <svg class="action-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M3 10h14M11 4l6 6-6 6"/></svg>
-          View Full Direction
-        </a>
-        <button class="scene-action" type="button" data-save-from-lightbox>
-          <svg class="action-icon" viewBox="0 0 16 20" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M2 2h12v17l-6-4-6 4z"/></svg>
-          Save This Direction
-        </button>
+      <div class="lightbox-placeholder">
+        <div class="placeholder-mark" aria-hidden="true">
+          <svg viewBox="0 0 60 60" width="60" height="60" fill="none" stroke="#c19a4b" stroke-width="1.4" aria-hidden="true">
+            <rect x="6" y="6" width="48" height="48"/>
+            <path d="M6 22h48M22 6v48"/>
+            <circle cx="38" cy="38" r="6"/>
+          </svg>
+        </div>
+        <div class="placeholder-eyebrow">By Private Invitation · VR Ready</div>
+        <p class="placeholder-text">
+          Our cinematic walkthrough of an <em>${world.name}</em> residence is
+          shown privately to engaged clients. Request a tour to step inside this
+          direction alongside our principal architect — on desktop, mobile, or
+          in true VR on Meta Quest and Apple Vision Pro.
+        </p>
+        <div class="placeholder-actions">
+          <a class="scene-action scene-action-primary" href="index.html#contact" data-tour="${world.id}">
+            <span class="action-dot" aria-hidden="true"></span>
+            Request Private Tour
+          </a>
+          <a class="scene-action" href="directions/${world.id}.html">
+            <svg class="action-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M3 10h14M11 4l6 6-6 6"/></svg>
+            View Full Direction
+          </a>
+          <button class="scene-action" type="button" data-save-from-lightbox>
+            <svg class="action-icon" viewBox="0 0 16 20" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M2 2h12v17l-6-4-6 4z"/></svg>
+            Save This Direction
+          </button>
+        </div>
       </div>
     `;
     lbFrame.querySelector("[data-save-from-lightbox]")?.addEventListener("click", () => {
       handleSave();
+      closeLightbox();
     });
   }
 
@@ -307,13 +320,8 @@ function openLightbox() {
   lightbox.hidden = false;
   document.body.style.overflow = "hidden";
 
-  // Mount Pannellum panorama (only when no real walkthrough)
-  if (!world.walkthrough) {
-    lightbox.classList.add("is-pano-active");
-    mountPanorama(world);
-  } else {
-    lightbox.classList.remove("is-pano-active");
-  }
+  // No panorama mounting needed — either real iframe or placeholder.
+  lightbox.classList.remove("is-pano-active");
 }
 
 function mountPanorama(world) {

@@ -885,10 +885,23 @@ div.pnlm-tooltip span::after {
   color: var(--explore-ink-soft);
 }
 .lb-credit-text em { font-style: italic; opacity: 0.85; }
+.lb-credit-stats {
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--explore-ink-faint);
+  font-feature-settings: "tnum";
+  margin-top: 2px;
+}
+.lb-credit-price {
+  color: var(--explore-gold);
+  font-weight: 500;
+}
 @media (max-width: 720px) {
   .lb-credit { left: 8px; bottom: 8px; padding: 6px 10px; max-width: calc(100% - 110px); }
   .lb-credit-eyebrow { font-size: 8px; letter-spacing: 0.2em; }
   .lb-credit-text { font-size: 10px; }
+  .lb-credit-stats { font-size: 8.5px; letter-spacing: 0.14em; }
 }
 
 .lb-vr-badge {
