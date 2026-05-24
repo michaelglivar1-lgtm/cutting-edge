@@ -1,123 +1,48 @@
 /* ───────────────────────────────────────────────────────────
    3D EXPLORE — interactive stage controller
-   No frameworks, no API calls, no runtime AI usage.
+   No framework. Zero ongoing AI/API cost.
+   Reads world catalog from window.CE_WORLDS (assets/js/worlds.js).
    ─────────────────────────────────────────────────────────── */
 
-const WORLDS = [
-  {
-    id: "modern-minimalist",
-    name: "Modern Minimalist",
-    mood: "White plaster, polished concrete, and a single horizontal flame.",
-    materials: [
-      { name: "Polished concrete", color: "#9a9690" },
-      { name: "White plaster",     color: "#efe9dc" },
-      { name: "Matte black steel", color: "#171717" },
-      { name: "Bone leather",      color: "#dfd6c5" },
-    ],
-    walkthrough: null,  // Drop a Matterport / Kuula URL here to enable iframe
-  },
-  {
-    id: "warm-modern",
-    name: "Warm Modern",
-    mood: "Walnut, raw bronze, and golden-hour canyon light.",
-    materials: [
-      { name: "Walnut",     color: "#4a2f1c" },
-      { name: "White oak",  color: "#c0a274" },
-      { name: "Travertine", color: "#d8c2a0" },
-      { name: "Raw bronze", color: "#7d5d20" },
-    ],
-    walkthrough: null,
-  },
-  {
-    id: "miami-modern",
-    name: "Miami Modern",
-    mood: "Terrazzo, ocean horizons, and white linen at the water's edge.",
-    materials: [
-      { name: "White terrazzo", color: "#ece6da" },
-      { name: "Ocean blue",     color: "#2e6a8a" },
-      { name: "Soft coral",     color: "#dba896" },
-      { name: "Polished brass", color: "#b08a47" },
-    ],
-    walkthrough: null,
-  },
-  {
-    id: "calabasas-minimalist",
-    name: "Calabasas Minimalist",
-    mood: "Monastic plaster, bone boucle, and a single sculptural curve.",
-    materials: [
-      { name: "Bone plaster",  color: "#e3d8c5" },
-      { name: "Oatmeal boucle", color: "#cab9a2" },
-      { name: "Microcement",   color: "#a59c8a" },
-      { name: "Hidden steel",  color: "#2a2924" },
-    ],
-    walkthrough: null,
-  },
-  {
-    id: "mediterranean-estate",
-    name: "Mediterranean Estate",
-    mood: "Lime plaster, terracotta, and a stone fireplace carved by hand.",
-    materials: [
-      { name: "Lime plaster",   color: "#efe4d1" },
-      { name: "Terracotta",     color: "#a8552d" },
-      { name: "Cedar beam",     color: "#5a3b21" },
-      { name: "Wrought iron",   color: "#1d1a14" },
-    ],
-    walkthrough: null,
-  },
-  {
-    id: "tuscan-european",
-    name: "Tuscan European",
-    mood: "Cotto tile, cypress beams, and a fire burning in cracked stone.",
-    materials: [
-      { name: "Cotto tile",    color: "#b06b3d" },
-      { name: "Cream plaster", color: "#e8dcc0" },
-      { name: "Cypress",       color: "#4b3a23" },
-      { name: "Aged stone",    color: "#998c75" },
-    ],
-    walkthrough: null,
-  },
-  {
-    id: "spanish-transitional",
-    name: "Spanish Transitional",
-    mood: "Saltillo, dark mahogany, and palm shadows on white plaster.",
-    materials: [
-      { name: "Saltillo tile", color: "#8a4a2b" },
-      { name: "White plaster", color: "#f0e9da" },
-      { name: "Mahogany beam", color: "#3a2317" },
-      { name: "Navy ceramic",  color: "#1e3a4a" },
-    ],
-    walkthrough: null,
-  },
-  {
-    id: "french-european",
-    name: "French European",
-    mood: "Chevron parquet, dove-gray boiseries, and antique gilt.",
-    materials: [
-      { name: "Versailles oak", color: "#a87a45" },
-      { name: "Dove gray",      color: "#bdb6a7" },
-      { name: "Antique gold",   color: "#b89653" },
-      { name: "Ivory silk",     color: "#ece2cf" },
-    ],
-    walkthrough: null,
-  },
-  {
-    id: "coastal-contemporary",
-    name: "Coastal Contemporary",
-    mood: "Whitewashed oak, driftwood beams, and hazy ocean morning light.",
-    materials: [
-      { name: "Whitewashed oak", color: "#d4c8b3" },
-      { name: "Driftwood gray",  color: "#8a847b" },
-      { name: "Linen",           color: "#ece5d4" },
-      { name: "Sea glass blue",  color: "#7d9aa5" },
-    ],
-    walkthrough: null,
-  },
-];
+const WORLDS = window.CE_WORLDS;
+const ASSET_BASE = window.CE_ASSET_BASE;
+const SAVE_KEY = window.CE_SAVE_KEY;
+const LEGACY_KEY = window.CE_LEGACY_KEY;
 
-const ASSET_BASE = "assets/worlds";
-const SAVE_KEY = "cuttingedge:savedDirection";
+/* ── Saved-board helpers (multi-direction) ───────────────── */
+function getSaved() {
+  try {
+    const raw = localStorage.getItem(SAVE_KEY);
+    if (raw) return JSON.parse(raw);
+    // Migrate legacy single-save
+    const legacy = localStorage.getItem(LEGACY_KEY);
+    if (legacy) {
+      const obj = JSON.parse(legacy);
+      const list = [{ id: obj.id, savedAt: obj.savedAt || Date.now(), note: "" }];
+      localStorage.setItem(SAVE_KEY, JSON.stringify(list));
+      localStorage.removeItem(LEGACY_KEY);
+      return list;
+    }
+  } catch (e) {}
+  return [];
+}
+function setSaved(list) {
+  try { localStorage.setItem(SAVE_KEY, JSON.stringify(list)); } catch (e) {}
+}
+function isSaved(id) { return getSaved().some(s => s.id === id); }
+function toggleSaved(id) {
+  const list = getSaved();
+  const idx = list.findIndex(s => s.id === id);
+  if (idx >= 0) {
+    list.splice(idx, 1);
+  } else {
+    list.push({ id, savedAt: Date.now(), note: "" });
+  }
+  setSaved(list);
+  return idx < 0; // true when just added
+}
 
-// ── Build DOM ────────────────────────────────────────────
+/* ── DOM references ──────────────────────────────────────── */
 const stageCanvas = document.getElementById("stageCanvas");
 const worldList   = document.getElementById("worldList");
 const worldRail   = document.querySelector(".world-rail");
@@ -129,20 +54,32 @@ const indexEl     = document.getElementById("directionIndex");
 const totalEl     = document.getElementById("directionTotal");
 const walkBtn     = document.getElementById("walkthroughBtn");
 const saveBtn     = document.getElementById("saveBtn");
+const compareBtn  = document.getElementById("compareBtn");
+const moodBoardBtn= document.getElementById("moodBoardBtn");
 const lightbox    = document.getElementById("walkthroughLightbox");
 const lbTitle     = document.getElementById("lightboxTitle");
 const lbFrame     = document.getElementById("lightboxFrame");
 const toast       = document.getElementById("toast");
+const boardCount  = document.getElementById("boardCount");
+const sceneMeta   = document.getElementById("sceneMeta");
+
+// Compare DOM
+const compareCanvas   = document.getElementById("compareCanvas");
+const compareA        = document.getElementById("compareA");
+const compareB        = document.getElementById("compareB");
+const compareDivider  = document.getElementById("compareDivider");
+const compareLabelA   = document.getElementById("compareLabelA");
+const compareLabelB   = document.getElementById("compareLabelB");
+const compareExitBtn  = document.getElementById("compareExitBtn");
 
 totalEl.textContent = String(WORLDS.length).padStart(2, "0");
 
-// Create one scene div per world (so we can crossfade between them)
+/* ── Build scene divs ────────────────────────────────────── */
 const sceneEls = {};
 WORLDS.forEach((w, i) => {
   const div = document.createElement("div");
   div.className = "stage-scene";
   div.dataset.world = w.id;
-  // Lazy-load: only set background for active scene; others use data-bg
   if (i === 0) {
     div.style.backgroundImage = `url('${ASSET_BASE}/${w.id}.webp')`;
   } else {
@@ -152,7 +89,7 @@ WORLDS.forEach((w, i) => {
   sceneEls[w.id] = div;
 });
 
-// Build right-rail world list
+/* ── Build world rail list ───────────────────────────────── */
 WORLDS.forEach((w, i) => {
   const li = document.createElement("li");
   const btn = document.createElement("button");
@@ -166,8 +103,11 @@ WORLDS.forEach((w, i) => {
     <span class="world-item-number">${String(i+1).padStart(2,"0")}</span>
   `;
   btn.addEventListener("click", () => {
-    setActive(w.id, true);
-    // On mobile, close the rail after selection
+    if (compareMode) {
+      setCompareSide(activeCompareSide, w.id);
+    } else {
+      setActive(w.id, true);
+    }
     if (window.matchMedia("(max-width: 820px)").matches) {
       worldRail.classList.remove("is-open");
     }
@@ -177,25 +117,21 @@ WORLDS.forEach((w, i) => {
   worldList.appendChild(li);
 });
 
-// ── Mobile rail toggle ────────────────────────────────────
-// The rail eyebrow becomes a tappable handle on small screens
-railEyebrow.addEventListener("click", (e) => {
+/* ── Mobile rail toggle ──────────────────────────────────── */
+railEyebrow.addEventListener("click", () => {
   if (window.matchMedia("(max-width: 820px)").matches) {
     worldRail.classList.toggle("is-open");
   }
 });
 
-// ── Active state ─────────────────────────────────────────
+/* ── Scene state + crossfade ─────────────────────────────── */
 let activeId = null;
-let loadedScenes = new Set();
+const loadedScenes = new Set();
 
 function preload(id) {
   if (loadedScenes.has(id)) return;
   const el = sceneEls[id];
   if (el && el.dataset.bg) {
-    // Set background-image immediately so the browser starts fetching and paints
-    // as soon as the bytes arrive. Also kick off a parallel Image() so we know
-    // when it's done (for analytics / future use).
     const url = el.dataset.bg;
     el.style.backgroundImage = `url('${url}')`;
     delete el.dataset.bg;
@@ -213,24 +149,22 @@ function setActive(id, animate = false) {
   if (!world) return;
 
   preload(id);
-
-  // Swap active scene
   Object.values(sceneEls).forEach(el => el.classList.remove("is-active"));
   sceneEls[id].classList.add("is-active");
 
-  // Animate meta out then update + in
   const metaEls = [titleEl, moodEl, materialsEl];
   if (animate) {
     metaEls.forEach(el => { el.style.transition = "opacity 0.25s ease"; el.style.opacity = "0"; });
     setTimeout(() => {
       writeMeta(world);
+      updateSaveBtn();
       metaEls.forEach(el => { el.style.opacity = "1"; });
     }, 240);
   } else {
     writeMeta(world);
+    updateSaveBtn();
   }
 
-  // Update rail active state + index
   worldList.querySelectorAll(".world-item").forEach(b => {
     b.classList.toggle("is-active", b.dataset.world === id);
   });
@@ -238,11 +172,12 @@ function setActive(id, animate = false) {
   indexEl.textContent = String(idx).padStart(2, "0");
 
   activeId = id;
-
-  // Preload the next two scenes for snappy switching
-  const order = WORLDS.findIndex(w => w.id === id);
+  const order = idx - 1;
   preload(WORLDS[(order + 1) % WORLDS.length].id);
   preload(WORLDS[(order + 2) % WORLDS.length].id);
+
+  // Update particle tint to match world palette
+  if (world.palette) tintParticles(world.palette.glow);
 }
 
 function writeMeta(world) {
@@ -256,13 +191,27 @@ function writeMeta(world) {
   `).join("");
 }
 
-// ── Walkthrough lightbox ─────────────────────────────────
+function updateSaveBtn() {
+  const saved = isSaved(activeId);
+  saveBtn.classList.toggle("is-saved", saved);
+  saveBtn.setAttribute("aria-pressed", saved ? "true" : "false");
+  saveBtn.querySelector(".action-text-save").textContent = saved ? "Saved" : "Save Direction";
+  // Update board count badge
+  const n = getSaved().length;
+  if (n > 0) {
+    boardCount.hidden = false;
+    boardCount.textContent = String(n);
+  } else {
+    boardCount.hidden = true;
+  }
+}
+
+/* ── Walkthrough lightbox ────────────────────────────────── */
 function openLightbox() {
   const world = WORLDS.find(w => w.id === activeId);
   if (!world) return;
   lbTitle.textContent = `${world.name} — Walkthrough`;
 
-  // If a real walkthrough URL exists, drop it in. Otherwise show placeholder.
   if (world.walkthrough) {
     lbFrame.innerHTML = `<iframe src="${world.walkthrough}" title="${world.name} walkthrough" allow="xr-spatial-tracking; fullscreen; vr; gyroscope; accelerometer" allowfullscreen></iframe>`;
   } else {
@@ -275,12 +224,29 @@ function openLightbox() {
             <circle cx="38" cy="38" r="6"/>
           </svg>
         </div>
+        <div class="placeholder-eyebrow">By Private Invitation</div>
         <p class="placeholder-text">
-          Immersive walkthrough launching soon.<br/>
-          Schedule a <a href="index.html#contact">private tour</a> to step inside this direction.
+          Our cinematic 3D walkthrough of <em>${world.name}</em> is reserved
+          for engaged clients. Request a private tour to step inside this direction
+          alongside our principal architect.
         </p>
+        <div class="placeholder-actions">
+          <a class="scene-action scene-action-primary" href="index.html#contact" data-tour="${world.id}">
+            <span class="action-dot" aria-hidden="true"></span>
+            Request Private Tour
+          </a>
+          <button class="scene-action" type="button" data-save-from-lightbox>
+            <svg class="action-icon" viewBox="0 0 16 20" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M2 2h12v17l-6-4-6 4z"/></svg>
+            Save This Direction
+          </button>
+        </div>
       </div>
     `;
+    // Wire the inline save button
+    lbFrame.querySelector("[data-save-from-lightbox]")?.addEventListener("click", () => {
+      handleSave();
+      closeLightbox();
+    });
   }
   lightbox.hidden = false;
   document.body.style.overflow = "hidden";
@@ -297,24 +263,22 @@ lightbox.addEventListener("click", (e) => {
 });
 walkBtn.addEventListener("click", openLightbox);
 
-// ── Save direction ───────────────────────────────────────
-saveBtn.addEventListener("click", () => {
+/* ── Save direction (toggle) ─────────────────────────────── */
+function handleSave() {
   const world = WORLDS.find(w => w.id === activeId);
   if (!world) return;
-  try {
-    localStorage.setItem(SAVE_KEY, JSON.stringify({
-      id: world.id, name: world.name, savedAt: Date.now()
-    }));
-    showToast(`${world.name} saved to your direction board`);
-  } catch (e) {
-    showToast(`${world.name} noted for your consultation`);
-  }
-});
+  const added = toggleSaved(world.id);
+  updateSaveBtn();
+  showToast(added
+    ? `${world.name} added to your direction board`
+    : `${world.name} removed from your board`
+  );
+}
+saveBtn.addEventListener("click", handleSave);
 
 function showToast(msg) {
   toast.textContent = msg;
   toast.hidden = false;
-  // Force reflow then add class
   void toast.offsetWidth;
   toast.classList.add("is-visible");
   clearTimeout(showToast._t);
@@ -324,9 +288,319 @@ function showToast(msg) {
   }, 2800);
 }
 
-// ── Keyboard nav ─────────────────────────────────────────
+/* ── Compare mode ────────────────────────────────────────── */
+let compareMode = false;
+let activeCompareSide = "B"; // which side a rail-click should change
+const compareState = { A: null, B: null };
+
+function enterCompare() {
+  compareMode = true;
+  // Pick a contrasting second world if possible
+  const order = WORLDS.findIndex(w => w.id === activeId);
+  compareState.A = activeId;
+  compareState.B = WORLDS[(order + 4) % WORLDS.length].id; // 4 steps away = good contrast
+  compareCanvas.hidden = false;
+  stageCanvas.style.opacity = "0";
+  document.body.classList.add("is-comparing");
+  compareExitBtn.hidden = false;
+  renderCompare();
+}
+
+function exitCompare() {
+  compareMode = false;
+  compareCanvas.hidden = true;
+  stageCanvas.style.opacity = "";
+  document.body.classList.remove("is-comparing");
+  compareExitBtn.hidden = true;
+}
+
+function renderCompare() {
+  const a = WORLDS.find(w => w.id === compareState.A);
+  const b = WORLDS.find(w => w.id === compareState.B);
+  if (!a || !b) return;
+  compareA.style.backgroundImage = `url('${ASSET_BASE}/${a.id}.webp')`;
+  compareB.style.backgroundImage = `url('${ASSET_BASE}/${b.id}.webp')`;
+  compareLabelA.textContent = a.name;
+  compareLabelB.textContent = b.name;
+  preload(a.id); preload(b.id);
+  // Mark which side is the "active selector target"
+  compareLabelA.classList.toggle("is-target", activeCompareSide === "A");
+  compareLabelB.classList.toggle("is-target", activeCompareSide === "B");
+}
+
+function setCompareSide(side, id) {
+  compareState[side] = id;
+  renderCompare();
+}
+
+// Click on a label to make it the target (next rail click swaps that side)
+compareLabelA.addEventListener("click", () => { activeCompareSide = "A"; renderCompare(); });
+compareLabelB.addEventListener("click", () => { activeCompareSide = "B"; renderCompare(); });
+
+compareBtn.addEventListener("click", enterCompare);
+compareExitBtn.addEventListener("click", exitCompare);
+
+// Compare divider drag
+(function setupDividerDrag() {
+  let dragging = false;
+  function setPercent(pct) {
+    pct = Math.max(5, Math.min(95, pct));
+    compareCanvas.style.setProperty("--split", pct + "%");
+  }
+  compareDivider.addEventListener("pointerdown", (e) => {
+    dragging = true;
+    compareDivider.setPointerCapture(e.pointerId);
+  });
+  compareDivider.addEventListener("pointermove", (e) => {
+    if (!dragging) return;
+    const rect = compareCanvas.getBoundingClientRect();
+    setPercent(((e.clientX - rect.left) / rect.width) * 100);
+  });
+  compareDivider.addEventListener("pointerup", (e) => {
+    dragging = false;
+    compareDivider.releasePointerCapture(e.pointerId);
+  });
+  // Initialize at 50%
+  setPercent(50);
+})();
+
+/* ── Mood Board PDF export ───────────────────────────────── */
+let jsPDFLoaded = false;
+function loadJsPDF() {
+  return new Promise((resolve, reject) => {
+    if (jsPDFLoaded || window.jspdf) { jsPDFLoaded = true; return resolve(); }
+    const s = document.createElement("script");
+    s.src = "https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js";
+    s.onload = () => { jsPDFLoaded = true; resolve(); };
+    s.onerror = reject;
+    document.head.appendChild(s);
+  });
+}
+
+async function imageToDataUrl(url) {
+  const res = await fetch(url);
+  const blob = await res.blob();
+  return new Promise((resolve) => {
+    const fr = new FileReader();
+    fr.onload = () => resolve(fr.result);
+    fr.readAsDataURL(blob);
+  });
+}
+
+async function buildMoodBoardPDF(world) {
+  await loadJsPDF();
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ unit: "pt", format: "letter", orientation: "portrait" });
+  const W = doc.internal.pageSize.getWidth();
+  const H = doc.internal.pageSize.getHeight();
+
+  // Background: warm cream
+  doc.setFillColor(244, 240, 232);
+  doc.rect(0, 0, W, H, "F");
+
+  // Hairline gold border
+  doc.setDrawColor(193, 154, 75);
+  doc.setLineWidth(0.5);
+  doc.rect(28, 28, W - 56, H - 56);
+
+  // Crest at top-left
+  try {
+    const crestUrl = await imageToDataUrl("assets/img/logo-crest.svg");
+    // jsPDF supports SVG via dataurl as image only for PNG/JPEG, so convert SVG to PNG by rasterizing
+    // We'll rasterize via an offscreen canvas instead
+    const svgImg = new Image();
+    await new Promise((res) => { svgImg.onload = res; svgImg.src = crestUrl; });
+    const cv = document.createElement("canvas");
+    cv.width = 200; cv.height = 230;
+    cv.getContext("2d").drawImage(svgImg, 0, 0, 200, 230);
+    doc.addImage(cv.toDataURL("image/png"), "PNG", 56, 56, 44, 50);
+  } catch (e) { /* non-fatal */ }
+
+  // Header text right of crest
+  doc.setTextColor(26, 20, 13);
+  doc.setFont("times", "italic");
+  doc.setFontSize(10);
+  doc.text("CUTTING EDGE", 114, 76, { charSpace: 2 });
+  doc.setFontSize(8);
+  doc.setTextColor(122, 96, 50);
+  doc.text("DESIGN & CONSTRUCTION", 114, 90, { charSpace: 1.5 });
+
+  // Date top-right
+  const d = new Date();
+  const dateStr = d.toLocaleDateString("en-US", { year:"numeric", month:"long", day:"numeric" });
+  doc.setFontSize(8);
+  doc.setTextColor(122, 110, 88);
+  doc.text(dateStr.toUpperCase(), W - 56, 76, { align: "right", charSpace: 1.5 });
+  doc.text("MOOD BOARD · 01 / 01", W - 56, 90, { align: "right", charSpace: 1.5 });
+
+  // Direction label + title
+  doc.setTextColor(122, 96, 50);
+  doc.setFontSize(8);
+  doc.text("DIRECTION", 56, 156, { charSpace: 2 });
+  doc.setFont("times", "normal");
+  doc.setTextColor(26, 20, 13);
+  doc.setFontSize(36);
+  // Wrap if too long
+  const titleLines = doc.splitTextToSize(world.name, W - 112);
+  doc.text(titleLines, 56, 192);
+
+  // Mood line
+  doc.setFont("times", "italic");
+  doc.setFontSize(12);
+  doc.setTextColor(77, 69, 55);
+  const moodLines = doc.splitTextToSize(`"${world.mood}"`, W - 112);
+  doc.text(moodLines, 56, 232);
+
+  // Hero scene image
+  try {
+    const sceneUrl = await imageToDataUrl(`${ASSET_BASE}/${world.id}.webp`);
+    // Convert webp dataurl to JPEG via canvas for max compatibility
+    const sImg = new Image();
+    await new Promise((res) => { sImg.onload = res; sImg.src = sceneUrl; });
+    const sCv = document.createElement("canvas");
+    const targetW = W - 112;
+    const targetH = targetW * (sImg.height / sImg.width);
+    sCv.width = sImg.width; sCv.height = sImg.height;
+    sCv.getContext("2d").drawImage(sImg, 0, 0);
+    doc.addImage(sCv.toDataURL("image/jpeg", 0.86), "JPEG", 56, 268, targetW, targetH);
+    var afterImageY = 268 + targetH + 28;
+  } catch (e) {
+    var afterImageY = 280;
+  }
+
+  // Materials section
+  doc.setFont("times", "italic");
+  doc.setFontSize(8);
+  doc.setTextColor(122, 96, 50);
+  doc.text("SIGNATURE MATERIALS", 56, afterImageY, { charSpace: 2 });
+
+  const swatchY = afterImageY + 14;
+  const cellW = (W - 112) / world.materials.length;
+  world.materials.forEach((m, i) => {
+    const x = 56 + i * cellW;
+    // Swatch
+    const rgb = hexToRgb(m.color);
+    doc.setFillColor(rgb.r, rgb.g, rgb.b);
+    doc.rect(x, swatchY, 28, 28, "F");
+    doc.setDrawColor(184, 171, 138);
+    doc.setLineWidth(0.3);
+    doc.rect(x, swatchY, 28, 28);
+    // Material name
+    doc.setFont("times", "normal");
+    doc.setFontSize(9);
+    doc.setTextColor(26, 20, 13);
+    const nameLines = doc.splitTextToSize(m.name, cellW - 40);
+    doc.text(nameLines, x + 36, swatchY + 14);
+  });
+
+  // Footer
+  doc.setDrawColor(193, 154, 75);
+  doc.setLineWidth(0.4);
+  doc.line(56, H - 96, W - 56, H - 96);
+  doc.setFont("times", "italic");
+  doc.setFontSize(9);
+  doc.setTextColor(77, 69, 55);
+  doc.text("Cutting Edge Design and Construction", 56, H - 76);
+  doc.setFontSize(8);
+  doc.setTextColor(122, 110, 88);
+  doc.text("Palm Beach  ·  Miami  ·  Naples  ·  Sarasota", 56, H - 62, { charSpace: 1.2 });
+  doc.text("cuttingedgedesignfl.com", W - 56, H - 76, { align: "right" });
+  doc.text("BY PRIVATE INVITATION", W - 56, H - 62, { align: "right", charSpace: 1.5 });
+
+  doc.save(`Cutting-Edge-MoodBoard-${world.name.replace(/\s+/g,"-")}.pdf`);
+}
+
+function hexToRgb(hex) {
+  hex = hex.replace("#", "");
+  if (hex.length === 3) hex = hex.split("").map(c => c+c).join("");
+  return { r: parseInt(hex.slice(0,2),16), g: parseInt(hex.slice(2,4),16), b: parseInt(hex.slice(4,6),16) };
+}
+
+moodBoardBtn.addEventListener("click", async () => {
+  const world = WORLDS.find(w => w.id === activeId);
+  if (!world) return;
+  const label = moodBoardBtn.querySelector("*") ? null : null; // no-op placeholder
+  moodBoardBtn.disabled = true;
+  const original = moodBoardBtn.innerHTML;
+  moodBoardBtn.innerHTML = `<span class="action-spinner" aria-hidden="true"></span> Preparing…`;
+  try {
+    await buildMoodBoardPDF(world);
+    showToast(`${world.name} mood board downloaded`);
+  } catch (e) {
+    console.error(e);
+    showToast(`Unable to build PDF — please try again`);
+  } finally {
+    moodBoardBtn.disabled = false;
+    moodBoardBtn.innerHTML = original;
+  }
+});
+
+/* ── Ambient gold particles ──────────────────────────────── */
+const particleCanvas = document.getElementById("particleCanvas");
+const particleCtx = particleCanvas.getContext("2d", { alpha: true });
+let particleTint = "rgba(193,154,75,0.55)";
+const particles = [];
+const PARTICLE_COUNT = 18;
+
+function resizeParticles() {
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  particleCanvas.width = window.innerWidth * dpr;
+  particleCanvas.height = window.innerHeight * dpr;
+  particleCanvas.style.width = window.innerWidth + "px";
+  particleCanvas.style.height = window.innerHeight + "px";
+  particleCtx.scale(dpr, dpr);
+}
+function seedParticles() {
+  particles.length = 0;
+  for (let i = 0; i < PARTICLE_COUNT; i++) {
+    particles.push({
+      x: Math.random() * window.innerWidth,
+      y: Math.random() * window.innerHeight,
+      r: 0.6 + Math.random() * 1.6,
+      vx: (Math.random() - 0.5) * 0.18,
+      vy: -0.08 - Math.random() * 0.22,
+      alpha: 0.15 + Math.random() * 0.45,
+      twinkle: Math.random() * Math.PI * 2,
+    });
+  }
+}
+function tintParticles(color) {
+  particleTint = color || "rgba(193,154,75,0.55)";
+}
+
+let lastTs = 0;
+function animateParticles(ts) {
+  const dt = Math.min(50, ts - lastTs || 16);
+  lastTs = ts;
+  particleCtx.clearRect(0, 0, particleCanvas.width, particleCanvas.height);
+  for (const p of particles) {
+    p.x += p.vx * (dt / 16);
+    p.y += p.vy * (dt / 16);
+    p.twinkle += 0.03;
+    if (p.y < -10) { p.y = window.innerHeight + 10; p.x = Math.random() * window.innerWidth; }
+    if (p.x < -10) p.x = window.innerWidth + 10;
+    if (p.x > window.innerWidth + 10) p.x = -10;
+    const a = p.alpha * (0.6 + 0.4 * Math.sin(p.twinkle));
+    particleCtx.beginPath();
+    particleCtx.fillStyle = particleTint.replace(/[\d.]+\)$/, a.toFixed(3) + ")");
+    particleCtx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+    particleCtx.fill();
+  }
+  rafId = requestAnimationFrame(animateParticles);
+}
+let rafId;
+const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+if (!prefersReducedMotion) {
+  resizeParticles();
+  seedParticles();
+  rafId = requestAnimationFrame(animateParticles);
+  window.addEventListener("resize", () => { resizeParticles(); seedParticles(); });
+}
+
+/* ── Keyboard nav ────────────────────────────────────────── */
 document.addEventListener("keydown", (e) => {
   if (!lightbox.hidden && e.key === "Escape") { closeLightbox(); return; }
+  if (compareMode && e.key === "Escape") { exitCompare(); return; }
   if (e.target && /input|textarea/i.test(e.target.tagName)) return;
   const order = WORLDS.findIndex(w => w.id === activeId);
   if (e.key === "ArrowDown" || e.key === "ArrowRight") {
@@ -335,14 +609,18 @@ document.addEventListener("keydown", (e) => {
   } else if (e.key === "ArrowUp" || e.key === "ArrowLeft") {
     e.preventDefault();
     setActive(WORLDS[(order - 1 + WORLDS.length) % WORLDS.length].id, true);
+  } else if (e.key === "s" && !e.metaKey && !e.ctrlKey) {
+    handleSave();
+  } else if (e.key === "c" && !e.metaKey && !e.ctrlKey) {
+    compareMode ? exitCompare() : enterCompare();
   }
 });
 
-// ── Init ─────────────────────────────────────────────────
-// Restore saved direction on load if present, else start at Warm Modern
+/* ── Init ────────────────────────────────────────────────── */
 let startId = "warm-modern";
-try {
-  const saved = JSON.parse(localStorage.getItem(SAVE_KEY) || "null");
-  if (saved && WORLDS.some(w => w.id === saved.id)) startId = saved.id;
-} catch (e) {}
+const saved = getSaved();
+if (saved.length > 0 && WORLDS.some(w => w.id === saved[saved.length - 1].id)) {
+  startId = saved[saved.length - 1].id;
+}
 setActive(startId, false);
+updateSaveBtn();

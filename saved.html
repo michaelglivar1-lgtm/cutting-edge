@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>My Direction Board — Cutting Edge Design and Construction</title>
+  <meta name="description" content="Your private collection of design directions, curated for your future home." />
+  <meta name="theme-color" content="#0b0c0e" />
+  <link rel="icon" type="image/svg+xml" href="assets/img/logo-crest.svg" />
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="assets/css/explore.css" />
+  <link rel="stylesheet" href="assets/css/saved.css" />
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin />
+</head>
+<body class="theme-dark saved-body">
+
+  <header class="site-header explore-header" id="siteHeader">
+    <a href="index.html#top" class="brand" aria-label="Cutting Edge — Home">
+      <img src="assets/img/logo-crest.svg" alt="" class="brand-crest" width="44" height="50" decoding="async" />
+      <span class="brand-name">Cutting Edge</span>
+      <span class="brand-divider">·</span>
+      <span class="brand-suffix">Design and Construction</span>
+    </a>
+    <nav class="nav" aria-label="Primary">
+      <a href="index.html#modern">Modern</a>
+      <a href="index.html#mediterranean">Mediterranean</a>
+      <a href="3d-explore.html">3D Explore</a>
+      <a href="saved.html" aria-current="page">My Board</a>
+      <a href="index.html#contact" class="btn-pill">Begin a Project <span aria-hidden="true">→</span></a>
+    </nav>
+  </header>
+
+  <main class="saved-page">
+    <section class="saved-intro">
+      <div class="saved-eyebrow">By Private Invitation</div>
+      <h1 class="saved-title">My Direction Board</h1>
+      <p class="saved-sub">
+        Your private collection of architectural directions, curated as you explored.
+        Add notes, refine your shortlist, then send the board to our studio to begin the conversation.
+      </p>
+      <div class="saved-stats" id="savedStats">
+        <span class="stat-number" id="statCount">0</span>
+        <span class="stat-label" id="statLabel">directions saved</span>
+      </div>
+    </section>
+
+    <!-- Empty state -->
+    <section class="saved-empty" id="savedEmpty" hidden>
+      <div class="empty-mark" aria-hidden="true">
+        <svg viewBox="0 0 64 64" width="64" height="64" fill="none" stroke="#c19a4b" stroke-width="1.2" aria-hidden="true">
+          <path d="M14 8h28v48l-14-10-14 10z"/>
+        </svg>
+      </div>
+      <h2 class="empty-title">Your board is empty</h2>
+      <p class="empty-sub">Step inside our nine design worlds and save the directions that move you.</p>
+      <a class="empty-cta" href="3d-explore.html">
+        Explore the Worlds <span aria-hidden="true">→</span>
+      </a>
+    </section>
+
+    <!-- Saved directions grid -->
+    <section class="saved-grid" id="savedGrid" hidden>
+      <!-- cards injected by JS -->
+    </section>
+
+    <!-- Master form + send -->
+    <section class="saved-send" id="savedSend" hidden>
+      <div class="send-divider">
+        <span class="send-divider-mark">CE</span>
+      </div>
+      <div class="send-inner">
+        <div class="send-eyebrow">Send to the Studio</div>
+        <h2 class="send-title">Begin the Conversation</h2>
+        <p class="send-sub">
+          We'll review your board with our principal architect and respond within
+          one business day with next steps for your project.
+        </p>
+
+        <form class="send-form" id="sendForm" novalidate>
+          <div class="form-row">
+            <label class="form-field">
+              <span class="form-label">Full Name</span>
+              <input type="text" name="name" required autocomplete="name" />
+            </label>
+            <label class="form-field">
+              <span class="form-label">Email</span>
+              <input type="email" name="email" required autocomplete="email" />
+            </label>
+          </div>
+          <div class="form-row">
+            <label class="form-field">
+              <span class="form-label">Phone</span>
+              <input type="tel" name="phone" autocomplete="tel" />
+            </label>
+            <label class="form-field">
+              <span class="form-label">Project Location</span>
+              <input type="text" name="location" placeholder="Palm Beach, Miami, Naples…" />
+            </label>
+          </div>
+          <label class="form-field form-field-full">
+            <span class="form-label">Vision for the project</span>
+            <textarea name="vision" rows="4" placeholder="Tell us about the home — site, budget range, timeline, the feeling you want to create."></textarea>
+          </label>
+
+          <div class="form-actions">
+            <button class="form-submit" type="submit">
+              <span class="action-dot" aria-hidden="true"></span>
+              Send My Board
+            </button>
+            <button class="form-secondary" type="button" id="downloadBoardBtn">
+              <svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M8 1v10M3 7l5 4 5-4M2 14h12"/></svg>
+              Download Board as PDF
+            </button>
+            <button class="form-secondary" type="button" id="clearBoardBtn">Clear Board</button>
+          </div>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <!-- Toast -->
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+  <!-- Confirmation screen -->
+  <div class="lightbox" id="confirmOverlay" role="dialog" aria-modal="true" hidden>
+    <div class="lightbox-backdrop" data-close></div>
+    <div class="lightbox-panel confirm-panel">
+      <div class="confirm-mark" aria-hidden="true">
+        <svg viewBox="0 0 60 60" width="48" height="48" fill="none" stroke="#c19a4b" stroke-width="1.5"><circle cx="30" cy="30" r="26"/><path d="M18 30l8 8 16-18"/></svg>
+      </div>
+      <div class="lightbox-eyebrow">Board Received</div>
+      <h2 class="lightbox-title">Thank you.</h2>
+      <p class="confirm-text">
+        Your board has been opened in your email client, ready to send to our studio.
+        We will respond within one business day to schedule a private consultation.
+      </p>
+      <div class="confirm-actions">
+        <a class="scene-action scene-action-primary" href="3d-explore.html">Return to 3D Explore</a>
+        <a class="scene-action" href="index.html">Back to Home</a>
+      </div>
+    </div>
+  </div>
+
+  <script src="assets/js/worlds.js"></script>
+  <script src="assets/js/saved.js" defer></script>
+</body>
+</html>

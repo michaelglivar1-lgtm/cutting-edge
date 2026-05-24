@@ -10,6 +10,7 @@
   <link rel="stylesheet" href="style.css" />
   <link rel="stylesheet" href="assets/css/explore.css" />
   <link rel="preload" as="image" href="assets/worlds/warm-modern.webp" />
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin />
 </head>
 <body class="theme-dark explore-body">
 
@@ -39,9 +40,25 @@
       <!-- scenes injected by JS -->
     </div>
 
+    <!-- Compare view (hidden by default) -->
+    <div class="compare-canvas" id="compareCanvas" hidden>
+      <div class="compare-half compare-half-a" id="compareA"></div>
+      <div class="compare-half compare-half-b" id="compareB"></div>
+      <div class="compare-divider" id="compareDivider">
+        <div class="compare-handle" aria-hidden="true">
+          <span></span><span></span><span></span>
+        </div>
+      </div>
+      <div class="compare-label compare-label-a" id="compareLabelA">A</div>
+      <div class="compare-label compare-label-b" id="compareLabelB">B</div>
+    </div>
+
     <!-- Vignette + scrim -->
     <div class="stage-scrim" aria-hidden="true"></div>
     <div class="stage-vignette" aria-hidden="true"></div>
+
+    <!-- Ambient gold particles -->
+    <canvas class="particle-canvas" id="particleCanvas" aria-hidden="true"></canvas>
 
     <!-- Top eyebrow / title -->
     <div class="stage-eyebrow">
@@ -64,9 +81,17 @@
           <span class="action-dot" aria-hidden="true"></span>
           Enter Walkthrough
         </button>
-        <button class="scene-action" id="saveBtn" type="button">
-          <svg class="action-icon" viewBox="0 0 16 20" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M2 2h12v17l-6-4-6 4z"/></svg>
-          Save Direction
+        <button class="scene-action" id="saveBtn" type="button" aria-pressed="false">
+          <svg class="action-icon save-icon" viewBox="0 0 16 20" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M2 2h12v17l-6-4-6 4z"/></svg>
+          <span class="action-text-save">Save Direction</span>
+        </button>
+        <button class="scene-action" id="compareBtn" type="button">
+          <svg class="action-icon" viewBox="0 0 20 18" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><rect x="1" y="2" width="8" height="14"/><rect x="11" y="2" width="8" height="14"/></svg>
+          <span class="action-text-compare">Compare</span>
+        </button>
+        <button class="scene-action" id="moodBoardBtn" type="button">
+          <svg class="action-icon" viewBox="0 0 20 18" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M2 2h16v14H2zM6 6h8M6 9h8M6 12h5"/></svg>
+          Mood Board
         </button>
       </div>
     </div>
@@ -82,10 +107,19 @@
       <a class="cta-link cta-link-primary" href="index.html#contact">
         Begin Your Project <span aria-hidden="true">→</span>
       </a>
-      <a class="cta-link" href="index.html#contact?type=private">
+      <a class="cta-link" href="index.html#contact">
         Schedule Private Consultation
       </a>
+      <a class="cta-link cta-link-board" id="viewBoardLink" href="saved.html">
+        My Board <span class="board-count" id="boardCount" hidden>0</span>
+      </a>
     </div>
+
+    <!-- Exit compare mode -->
+    <button class="compare-exit" id="compareExitBtn" type="button" hidden>
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M5 5l14 14M19 5L5 19"/></svg>
+      Exit Compare
+    </button>
 
     <!-- Ambient gold dot, decorative -->
     <div class="ambient-glow" aria-hidden="true"></div>
@@ -102,19 +136,6 @@
       <h2 class="lightbox-title" id="lightboxTitle">Warm Modern</h2>
       <div class="lightbox-frame" id="lightboxFrame">
         <!-- iframe injected here when a real walkthrough URL is configured -->
-        <div class="lightbox-placeholder">
-          <div class="placeholder-mark" aria-hidden="true">
-            <svg viewBox="0 0 60 60" width="60" height="60" fill="none" stroke="#c19a4b" stroke-width="1.4" aria-hidden="true">
-              <rect x="6" y="6" width="48" height="48"/>
-              <path d="M6 22h48M22 6v48"/>
-              <circle cx="38" cy="38" r="6"/>
-            </svg>
-          </div>
-          <p class="placeholder-text">
-            Immersive walkthrough launching soon.<br/>
-            Schedule a <a href="index.html#contact">private tour</a> to step inside this direction.
-          </p>
-        </div>
       </div>
     </div>
   </div>
@@ -122,6 +143,7 @@
   <!-- ─── TOAST ─── -->
   <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 
+  <script src="assets/js/worlds.js"></script>
   <script src="assets/js/explore.js" defer></script>
 </body>
 </html>
