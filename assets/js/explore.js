@@ -213,17 +213,21 @@ function updateSaveBtn() {
 }
 
 /* ── Walkthrough lightbox ────────────────────────────────── */
+let panoViewer = null;
+
 function openLightbox() {
   const world = WORLDS.find(w => w.id === activeId);
   if (!world) return;
-  lbTitle.textContent = `${world.name} — Walkthrough`;
+  lbTitle.textContent = `${world.name} — 360° Walkthrough`;
 
-  // Build the in-walkthrough direction switcher (lets users "step into" another world)
+  // Build the in-walkthrough direction switcher
   const switcher = WORLDS.map(w => `
     <button class="lb-switch-pill ${w.id === world.id ? 'is-active' : ''}" type="button" data-world="${w.id}">${w.name}</button>
   `).join("");
 
   if (world.walkthrough) {
+    lbFrame.classList.remove("has-pano");
+    // Real Matterport / Kuula iframe path
     lbFrame.innerHTML = `
       <div class="lb-iframe-wrap">
         <iframe src="${world.walkthrough}" title="${world.name} walkthrough" allow="xr-spatial-tracking; fullscreen; vr; gyroscope; accelerometer" allowfullscreen></iframe>
@@ -234,45 +238,43 @@ function openLightbox() {
       </div>
     `;
   } else {
+    // Pannellum 360 panorama path — default for every world until real walkthroughs are wired
+    lbFrame.classList.add("has-pano");
     lbFrame.innerHTML = `
-      <div class="lightbox-placeholder">
-        <div class="placeholder-mark" aria-hidden="true">
-          <svg viewBox="0 0 60 60" width="60" height="60" fill="none" stroke="#c19a4b" stroke-width="1.4" aria-hidden="true">
-            <rect x="6" y="6" width="48" height="48"/>
-            <path d="M6 22h48M22 6v48"/>
-            <circle cx="38" cy="38" r="6"/>
-          </svg>
-        </div>
-        <div class="placeholder-eyebrow">By Private Invitation · VR Ready</div>
-        <p class="placeholder-text">
-          Our cinematic 3D walkthrough of <em>${world.name}</em> is reserved
-          for engaged clients — viewable on desktop, mobile, and in true VR on
-          Meta Quest or Apple Vision Pro. Request a private tour to step inside
-          this direction alongside our principal architect.
-        </p>
-        <div class="placeholder-actions">
-          <a class="scene-action scene-action-primary" href="index.html#contact" data-tour="${world.id}">
-            <span class="action-dot" aria-hidden="true"></span>
-            Request Private Tour
-          </a>
-          <a class="scene-action" href="directions/${world.id}.html">
-            <svg class="action-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M3 10h14M11 4l6 6-6 6"/></svg>
-            View Full Direction
-          </a>
-          <button class="scene-action" type="button" data-save-from-lightbox>
-            <svg class="action-icon" viewBox="0 0 16 20" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M2 2h12v17l-6-4-6 4z"/></svg>
-            Save This Direction
-          </button>
-        </div>
+      <div id="panoStage" class="pano-stage"></div>
+      <div class="pano-instructions">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M2 12h20M12 2v20M5 5l14 14M19 5l-14 14"/></svg>
+        <span>Drag to look around · Pinch / scroll to zoom · Tap a hotspot to switch direction</span>
+      </div>
+      <div class="pano-loading" id="panoLoading">
+        <span class="action-spinner"></span>
+        <span>Composing ${world.name}…</span>
+      </div>
+      <div class="lb-vr-badge" aria-label="Compatible with VR headsets">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="2" y="7" width="20" height="10" rx="2"/><circle cx="7.5" cy="12" r="1.5"/><circle cx="16.5" cy="12" r="1.5"/></svg>
+        360° · VR Ready
+      </div>
+      <div class="pano-actions">
+        <a class="scene-action scene-action-primary" href="index.html#contact" data-tour="${world.id}">
+          <span class="action-dot" aria-hidden="true"></span>
+          Request Private Tour
+        </a>
+        <a class="scene-action" href="directions/${world.id}.html">
+          <svg class="action-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M3 10h14M11 4l6 6-6 6"/></svg>
+          View Full Direction
+        </a>
+        <button class="scene-action" type="button" data-save-from-lightbox>
+          <svg class="action-icon" viewBox="0 0 16 20" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M2 2h12v17l-6-4-6 4z"/></svg>
+          Save This Direction
+        </button>
       </div>
     `;
     lbFrame.querySelector("[data-save-from-lightbox]")?.addEventListener("click", () => {
       handleSave();
-      closeLightbox();
     });
   }
 
-  // Inject the in-walkthrough direction switcher under the frame
+  // Inject the in-walkthrough direction switcher
   let switcherEl = document.getElementById("lbSwitcher");
   if (!switcherEl) {
     switcherEl = document.createElement("div");
@@ -288,18 +290,104 @@ function openLightbox() {
     p.addEventListener("click", () => {
       const id = p.dataset.world;
       setActive(id, false);
-      // Re-open with new world's walkthrough/placeholder
       openLightbox();
     });
   });
 
   lightbox.hidden = false;
   document.body.style.overflow = "hidden";
+
+  // Mount Pannellum panorama (only when no real walkthrough)
+  if (!world.walkthrough) {
+    mountPanorama(world);
+  }
+}
+
+function mountPanorama(world) {
+  if (!window.pannellum) {
+    // Pannellum still loading — wait for it
+    const wait = setInterval(() => {
+      if (window.pannellum) { clearInterval(wait); mountPanorama(world); }
+    }, 100);
+    return;
+  }
+
+  // Destroy any existing viewer first
+  try { if (panoViewer && panoViewer.destroy) panoViewer.destroy(); } catch (e) {}
+  panoViewer = null;
+
+  const stage = document.getElementById("panoStage");
+  if (!stage) return;
+
+  // Build hotspots: a small marker for each OTHER world to jump into
+  const order = WORLDS.findIndex(w => w.id === world.id);
+  const others = WORLDS.filter((_, i) => i !== order);
+  // Distribute hotspots evenly around the horizontal plane (yaw 0-360, pitch slightly above horizon)
+  const hotspots = others.slice(0, 6).map((w, i) => {
+    const yaw = (i * (360 / 6)) - 180; // spread across the room
+    return {
+      pitch: -5 + (i % 2) * 10,
+      yaw: yaw,
+      type: "info",
+      text: w.name,
+      clickHandlerFunc: () => {
+        setActive(w.id, false);
+        openLightbox();
+      },
+    };
+  });
+
+  try {
+    panoViewer = window.pannellum.viewer("panoStage", {
+      type: "equirectangular",
+      panorama: `${ASSET_BASE}/${world.id}-pano.jpg`,
+      autoLoad: true,
+      autoRotate: -2,             // slow gentle rotation when idle
+      autoRotateInactivityDelay: 3000,
+      compass: false,
+      showZoomCtrl: false,
+      showFullscreenCtrl: true,
+      showControls: true,
+      mouseZoom: true,
+      keyboardZoom: true,
+      doubleClickZoom: true,
+      draggable: true,
+      orientationOnByDefault: false,
+      // The source image is 1376x768 = 16:9 ≈ 1.79:1 not the standard 2:1.
+      // Tell Pannellum the actual angular coverage so it maps correctly:
+      haov: 360,
+      vaov: 180 * (768 / (1376 / 2)),  // approximate: full 360 horizontal, computed vertical
+      vOffset: 0,
+      minHfov: 30,
+      maxHfov: 120,
+      hfov: 95,
+      pitch: 0,
+      yaw: 0,
+      hotSpots: hotspots,
+      hotSpotDebug: false,
+      sceneFadeDuration: 800,
+    });
+
+    panoViewer.on("load", () => {
+      const loading = document.getElementById("panoLoading");
+      if (loading) loading.classList.add("is-hidden");
+    });
+    panoViewer.on("error", (err) => {
+      console.error("Pannellum error:", err);
+      const loading = document.getElementById("panoLoading");
+      if (loading) loading.innerHTML = `<span>Unable to load 360° view. <a href="directions/${world.id}.html" style="color:var(--explore-gold)">View direction page</a></span>`;
+    });
+  } catch (e) {
+    console.error("mountPanorama failed:", e);
+  }
 }
 
 function closeLightbox() {
+  try { if (panoViewer && panoViewer.destroy) panoViewer.destroy(); } catch (e) {}
+  panoViewer = null;
   lightbox.hidden = true;
   lbFrame.innerHTML = "";
+  lbFrame.classList.remove("has-pano");
   const sw = document.getElementById("lbSwitcher");
   if (sw) sw.remove();
   document.body.style.overflow = "";
