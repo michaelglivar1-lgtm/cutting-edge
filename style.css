@@ -146,7 +146,88 @@
   opacity: 0.85;
 }
 .nav a:hover { opacity: 1; color: var(--color-bronze); }
-@media (max-width: 720px) { .nav { gap: var(--space-4); } .nav a:not(.btn-pill) { display: none; } }
+
+/* Mobile hamburger menu — fullscreen drawer with every nav link */
+.nav-toggle {
+  display: none;
+  background: transparent;
+  border: 1px solid currentColor;
+  width: 44px; height: 44px;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 5px;
+  padding: 0;
+  color: inherit;
+  -webkit-tap-highlight-color: transparent;
+}
+.nav-toggle span {
+  display: block;
+  width: 18px;
+  height: 1px;
+  background: currentColor;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+.nav-toggle[aria-expanded="true"] span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
+.nav-toggle[aria-expanded="true"] span:nth-child(2) { opacity: 0; }
+.nav-toggle[aria-expanded="true"] span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
+
+@media (max-width: 720px) {
+  .nav-toggle { display: inline-flex; order: 99; }
+  .nav { gap: var(--space-3); }
+  .nav .btn-pill { padding: 10px 14px; font-size: 11px; letter-spacing: 0.12em; }
+  .nav a:not(.btn-pill):not(.nav-toggle) { display: none; }
+  /* Drawer state — toggled by .nav-open on body */
+  .nav-drawer {
+    position: fixed;
+    inset: 0;
+    z-index: 999;
+    background: linear-gradient(180deg, #0a0806 0%, #14110d 100%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 80px 24px 40px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 280ms ease;
+  }
+  body.nav-open .nav-drawer {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .nav-drawer a {
+    color: #f3e8d2;
+    text-decoration: none;
+    font-family: "Cormorant Garamond", "Playfair Display", Georgia, serif;
+    font-size: 28px;
+    font-weight: 400;
+    padding: 10px 20px;
+    letter-spacing: 0.02em;
+    line-height: 1.2;
+    border-bottom: 1px solid transparent;
+    transition: color 0.3s ease, border-color 0.3s ease;
+  }
+  .nav-drawer a:hover, .nav-drawer a:focus { color: #c19a4b; border-bottom-color: #c19a4b; }
+  .nav-drawer-close {
+    position: absolute;
+    top: 18px;
+    right: 18px;
+    width: 44px; height: 44px;
+    background: transparent;
+    border: 1px solid rgba(193, 154, 75, 0.5);
+    color: #c19a4b;
+    font-size: 24px;
+    line-height: 1;
+    cursor: pointer;
+  }
+  body.nav-open { overflow: hidden; }
+}
+@media (min-width: 721px) {
+  .nav-drawer { display: none !important; }
+}
 
 .btn-pill {
   display: inline-flex; align-items: center; gap: var(--space-2);
