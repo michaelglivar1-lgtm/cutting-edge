@@ -242,7 +242,7 @@ function openLightbox() {
     // "Matterport" branding so the experience reads as Cutting Edge end-to-end.
     lbFrame.innerHTML = `
       <div class="lb-iframe-wrap">
-        <iframe src="${src}" title="${world.name} walkthrough" allow="xr-spatial-tracking; fullscreen; vr; gyroscope; accelerometer; autoplay" allowfullscreen></iframe>
+        <iframe src="${src}" title="${world.name} walkthrough" allow="xr-spatial-tracking; fullscreen; vr; gyroscope; accelerometer; autoplay" allowfullscreen sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"></iframe>
         <div class="lb-tap-hint" data-tap-hint>
           <span class="lb-tap-hint-arrow" aria-hidden="true">
             <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6">
