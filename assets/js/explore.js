@@ -234,24 +234,25 @@ function openLightbox() {
     const src = world.walkthrough.includes("?")
       ? `${world.walkthrough}&hl=0&play=1&qs=1&brand=0&mt=0&search=0&kb=0&hr=0&dh=1&title=0`
       : `${world.walkthrough}?hl=0&play=1&qs=1&brand=0&mt=0&search=0&kb=0&hr=0&dh=1&title=0`;
-    // Beautiful gold "Tap to Begin" overlay — sits over Matterport's poster image so
-    // mobile users don't see the low-res poster + white play button and think it's broken.
-    // Dismisses on first tap, after which Matterport's own play button is one tap away
-    // OR the click passes through and starts the tour.
+    // Two-frame UX: a gold instructional ribbon sits along the BOTTOM of the iframe
+    // (not blocking Matterport's own play button), so the user sees the Matterport poster
+    // + their play button immediately, plus our luxury context (estate name, instructions).
+    // The ribbon fades when the tour starts (we listen for postMessage from Matterport).
     lbFrame.innerHTML = `
       <div class="lb-iframe-wrap">
         <iframe src="${src}" title="${world.name} walkthrough" allow="xr-spatial-tracking; fullscreen; vr; gyroscope; accelerometer; autoplay" allowfullscreen></iframe>
-        <button type="button" class="lb-begin-overlay" data-begin-walkthrough aria-label="Begin walkthrough">
-          <span class="lb-begin-eyebrow">${world.walkthroughCredit ? world.walkthroughCredit.split(" · ")[0] : world.name}</span>
-          <span class="lb-begin-ring" aria-hidden="true">
-            <svg viewBox="0 0 64 64" width="64" height="64" fill="none" stroke="currentColor" stroke-width="1.4">
-              <circle cx="32" cy="32" r="30"/>
-              <path d="M26 22l14 10-14 10z" fill="currentColor" stroke="none"/>
+        <div class="lb-tap-hint" data-tap-hint>
+          <span class="lb-tap-hint-arrow" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6">
+              <circle cx="12" cy="12" r="10"/>
+              <path d="M10 8l6 4-6 4z" fill="currentColor" stroke="none"/>
             </svg>
           </span>
-          <span class="lb-begin-label">Tap to Begin Walkthrough</span>
-          <span class="lb-begin-sub">Drag to look · Pinch to zoom · Crystal clear in 3D</span>
-        </button>
+          <span class="lb-tap-hint-text">
+            <strong>Tap the play button to enter</strong>
+            <span>${world.walkthroughCredit ? world.walkthroughCredit.split(" · ")[0] : world.name} · Drag to look · Pinch to zoom</span>
+          </span>
+        </div>
       </div>
       <div class="lb-vr-badge" aria-label="Compatible with VR headsets">
         <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="2" y="7" width="20" height="10" rx="2"/><circle cx="7.5" cy="12" r="1.5"/><circle cx="16.5" cy="12" r="1.5"/></svg>
@@ -271,22 +272,23 @@ function openLightbox() {
         </div>
       ` : ""}
     `;
-    // Hook up the gold "Tap to Begin" overlay dismiss — fade out + remove,
-    // and try to focus/click the iframe so Matterport's own play state engages.
-    const beginBtn = lbFrame.querySelector("[data-begin-walkthrough]");
-    const beginIframe = lbFrame.querySelector(".lb-iframe-wrap iframe");
-    if (beginBtn && beginIframe) {
-      const dismiss = (e) => {
-        if (e) { e.preventDefault(); e.stopPropagation(); }
-        beginBtn.classList.add("is-dismissed");
-        // Focus iframe so any subsequent gesture is treated as a user-initiated
-        // interaction by Safari’s autoplay policy.
-        try { beginIframe.focus({ preventScroll: true }); } catch (_) {}
-        // Remove from DOM after fade transition completes so touch events reach the iframe.
-        setTimeout(() => beginBtn.remove(), 380);
+    // Fade the tap hint after 7 seconds OR when we detect Matterport has started.
+    const tapHint = lbFrame.querySelector("[data-tap-hint]");
+    if (tapHint) {
+      const dismissHint = () => {
+        tapHint.classList.add("is-faded");
+        setTimeout(() => tapHint.remove(), 500);
       };
-      beginBtn.addEventListener("click", dismiss);
-      beginBtn.addEventListener("touchend", dismiss, { passive: false });
+      // Listen for Matterport SDK messages indicating tour started.
+      const onMsg = (ev) => {
+        if (typeof ev.origin === "string" && ev.origin.includes("matterport.com")) {
+          dismissHint();
+          window.removeEventListener("message", onMsg);
+        }
+      };
+      window.addEventListener("message", onMsg);
+      // Failsafe: fade after 10s no matter what.
+      setTimeout(dismissHint, 10000);
     }
   } else {
     // No real walkthrough wired — show honest "By Private Invitation" placeholder.
