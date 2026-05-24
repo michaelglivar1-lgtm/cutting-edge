@@ -299,7 +299,10 @@ function openLightbox() {
 
   // Mount Pannellum panorama (only when no real walkthrough)
   if (!world.walkthrough) {
+    lightbox.classList.add("is-pano-active");
     mountPanorama(world);
+  } else {
+    lightbox.classList.remove("is-pano-active");
   }
 }
 
@@ -353,10 +356,8 @@ function mountPanorama(world) {
       doubleClickZoom: true,
       draggable: true,
       orientationOnByDefault: false,
-      // The source image is 1376x768 = 16:9 ≈ 1.79:1 not the standard 2:1.
-      // Tell Pannellum the actual angular coverage so it maps correctly:
-      haov: 360,
-      vaov: 180 * (768 / (1376 / 2)),  // approximate: full 360 horizontal, computed vertical
+      // Source images are 1774×887 ≈ 2:1 — standard equirectangular.
+      // Let Pannellum default to full 360°×180° mapping.
       vOffset: 0,
       minHfov: 30,
       maxHfov: 120,
@@ -371,6 +372,15 @@ function mountPanorama(world) {
     panoViewer.on("load", () => {
       const loading = document.getElementById("panoLoading");
       if (loading) loading.classList.add("is-hidden");
+      // After Pannellum mounts, prevent touch events on the canvas from
+      // bubbling up to the lightbox panel (which would scroll instead of drag).
+      const stage = document.getElementById("panoStage");
+      if (stage) {
+        const stopper = (e) => { e.stopPropagation(); };
+        ['touchstart','touchmove','touchend','pointerdown','pointermove','pointerup'].forEach(evt => {
+          stage.addEventListener(evt, stopper, { passive: false });
+        });
+      }
     });
     panoViewer.on("error", (err) => {
       console.error("Pannellum error:", err);
@@ -386,6 +396,7 @@ function closeLightbox() {
   try { if (panoViewer && panoViewer.destroy) panoViewer.destroy(); } catch (e) {}
   panoViewer = null;
   lightbox.hidden = true;
+  lightbox.classList.remove("is-pano-active");
   lbFrame.innerHTML = "";
   lbFrame.classList.remove("has-pano");
   const sw = document.getElementById("lbSwitcher");

@@ -563,6 +563,11 @@
   flex-direction: column;
   gap: var(--space-4);
   animation: lightbox-rise 0.5s cubic-bezier(0.22, 0.7, 0.25, 1);
+  overscroll-behavior: contain;
+}
+/* When a panorama is active, the panel itself shouldn't scroll — the user is dragging the view */
+.lightbox.is-pano-active .lightbox-panel {
+  overflow: hidden;
 }
 @keyframes lightbox-rise {
   from { transform: translateY(20px); opacity: 0; }
@@ -710,11 +715,20 @@
   height: 100%;
   background: #000;
   cursor: grab;
+  /* Critical: prevent browser from claiming touch as scroll — lets Pannellum receive drag */
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  overscroll-behavior: contain;
 }
+.pano-stage canvas { touch-action: none; }
 /* When the lightbox-frame contains a pano-stage, override its centering */
 .lightbox-frame.has-pano {
   display: block;
   padding: 0;
+  touch-action: none;
+  overscroll-behavior: contain;
 }
 .pano-stage:active { cursor: grabbing; }
 .pano-instructions {
@@ -1026,7 +1040,7 @@ div.pnlm-tooltip span::after {
   .world-item { padding: 9px 4px; font-size: 13px; }
   .world-item-name { line-height: 1.2; }
 
-  .lightbox-panel { padding: var(--space-5) var(--space-3) var(--space-3); max-height: 95vh; overflow-y: auto; }
+  .lightbox-panel { padding: var(--space-5) var(--space-3) var(--space-3); max-height: 100vh; max-height: 100dvh; overflow-y: auto; }
   .lightbox-title { font-size: 1.25rem; line-height: 1.2; margin-bottom: var(--space-2); padding-right: 40px; }
   .lightbox-eyebrow { font-size: 9px; letter-spacing: 0.26em; }
   .lightbox-frame { min-height: 320px; height: 50vh; }
