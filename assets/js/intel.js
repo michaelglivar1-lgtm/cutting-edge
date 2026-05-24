@@ -17,6 +17,7 @@
     const data = window.CE_INTEL;
     if (!data) return;
 
+    renderTicker(data);
     renderSnapshot(data);
     renderStyleMomentum(data);
     renderCityHeat(data);
@@ -24,8 +25,106 @@
     renderForecast(data);
     renderROI(data);
     initObservers();
-    // Live ticker subtle pulse
     setInterval(pulseLive, 4000);
+    // Stock-style live tick: nudge KPI + ticker numbers every 2-4s
+    setInterval(liveTick, 2400);
+  }
+
+  // ─── Stock-style scrolling ticker (S&P / Bloomberg style) ───
+  function renderTicker(data) {
+    const track = document.getElementById("intelTickerTrack");
+    if (!track) return;
+    // Build a long list of ticker items from styles + cities + finishes
+    const items = [];
+    data.styles.forEach(s => {
+      const symbol = s.id.toUpperCase().replace(/-/g, "").slice(0, 6);
+      items.push({
+        sym: symbol,
+        name: s.name,
+        value: s.score,
+        change: s.momentum,
+        type: "score",
+      });
+    });
+    data.cities.forEach(c => {
+      const symbol = c.name.replace(/[^A-Z]/g, "").slice(0, 4) || c.name.slice(0, 4).toUpperCase();
+      items.push({
+        sym: symbol,
+        name: c.name,
+        value: c.demand,
+        change: c.momentum,
+        type: "demand",
+      });
+    });
+    data.finishTrends.slice(0, 8).forEach(f => {
+      const symbol = f.name.split(" ").map(w => w[0]).join("").slice(0, 5).toUpperCase();
+      items.push({
+        sym: symbol,
+        name: f.name,
+        value: f.appearance,
+        change: f.change,
+        type: "finish",
+      });
+    });
+    // Duplicate the list so the marquee loops seamlessly
+    const html = items.concat(items).map((it, i) => {
+      const up = it.change >= 0;
+      const sign = up ? "+" : "";
+      return `
+        <span class="intel-tick" data-tick-index="${i % items.length}">
+          <span class="intel-tick-sym">${it.sym}</span>
+          <span class="intel-tick-val" data-tick-val>${it.value.toFixed(1)}</span>
+          <span class="intel-tick-chg ${up ? 'is-up' : 'is-down'}" data-tick-chg>${sign}${it.change.toFixed(1)}%</span>
+        </span>
+      `;
+    }).join("");
+    track.innerHTML = html;
+    // Save raw values for live tick updates
+    window.__intelTickerData = items;
+  }
+
+  // ─── Live tick: nudge values ±0.1-0.4 to simulate live market data ───
+  function liveTick() {
+    // Update ticker symbols
+    if (window.__intelTickerData) {
+      document.querySelectorAll(".intel-tick").forEach(tick => {
+        const idx = parseInt(tick.dataset.tickIndex, 10);
+        const base = window.__intelTickerData[idx];
+        if (!base) return;
+        // Tiny random walk
+        const drift = (Math.random() - 0.5) * 0.6;
+        const newVal = Math.max(1, base.value + drift);
+        const newChg = base.change + (Math.random() - 0.5) * 0.4;
+        const valEl = tick.querySelector("[data-tick-val]");
+        const chgEl = tick.querySelector("[data-tick-chg]");
+        if (valEl) {
+          valEl.textContent = newVal.toFixed(1);
+          flash(valEl);
+        }
+        if (chgEl) {
+          const up = newChg >= 0;
+          chgEl.textContent = (up ? "+" : "") + newChg.toFixed(1) + "%";
+          chgEl.classList.toggle("is-up", up);
+          chgEl.classList.toggle("is-down", !up);
+        }
+      });
+    }
+    // Nudge the 4 top KPI counters too
+    document.querySelectorAll("[data-kpi-counter]").forEach(el => {
+      const base = parseFloat(el.dataset.target);
+      const drift = (Math.random() - 0.5) * (base * 0.003);
+      const newVal = base + drift;
+      const prefix = el.dataset.prefix || "";
+      const suffix = el.dataset.suffix || "";
+      const dec = parseInt(el.dataset.decimals, 10) || 0;
+      el.textContent = prefix + formatNum(newVal, dec) + suffix;
+      flash(el);
+    });
+  }
+  function flash(el) {
+    el.classList.remove("is-flash");
+    void el.offsetWidth;
+    el.classList.add("is-flash");
   }
 
   // ─── Animated counter helper ──────────────────────────
