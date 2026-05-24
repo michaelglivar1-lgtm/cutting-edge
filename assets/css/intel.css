@@ -250,20 +250,23 @@
 /* ─── KPI snapshot strip ───────────────────────────────── */
 .intel-snapshot {
   padding: 0 40px;
-  margin: -40px auto 0;
+  margin: 0 auto;
   max-width: 1480px;
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 1px;
   background: var(--intel-line);
   border: 1px solid var(--intel-line);
+  position: relative;
+  z-index: 2;
 }
 .intel-kpi {
   background: var(--intel-bg-2);
-  padding: 28px 28px 24px;
+  padding: 32px 28px 28px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
+  overflow: visible;
 }
 .intel-kpi-eyebrow {
   display: flex;
