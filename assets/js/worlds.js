@@ -169,11 +169,15 @@ window.CE_WORLDS = [
     walkthrough: null,
     walkthroughCredit: null,
     walkthroughHostedBy: null,
-    photoGallery: [
+        photoGallery: [
       "galleries/mediterranean/01.jpg",
       "galleries/mediterranean/02.jpg",
       "galleries/mediterranean/03.jpg",
       "galleries/mediterranean/04.jpg",
+      "galleries/mediterranean/05.jpg",
+      "galleries/mediterranean/06.jpg",
+      "galleries/mediterranean/07.jpg",
+      "galleries/mediterranean/08.jpg",
     ],
   },
   {
