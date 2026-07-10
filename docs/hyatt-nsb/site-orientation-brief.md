@@ -48,7 +48,7 @@ Coastal-Florida Hyatt Place prototype:
 | **5th floor** | Vertical add to the existing 4-story massing (55' → ~68' — confirm against PUD/height entitlements before renders imply approval). |
 | **Public rooftop pool + tiki bar & grill** | On the roof; orient the bar/deck **west/southwest** for sunset over the Indian River + mangroves. |
 | **Rear ground-level mangrove pool** | At the existing pool location, **SW corner**, at the creek/marsh edge (faces S/W). |
-| **4-level parking garage, 240×240 ft** | Best on the **east** side of the parcel — keeps 57,600 sf of structure off the water frontage and preserves hotel water views. |
+| **5-level parking garage, 240×240 ft** | On the **east** side of the hotel — keeps 57,600 sf/level of structure off the water frontage and preserves hotel water views. |
 
 ## Render golden rules
 
