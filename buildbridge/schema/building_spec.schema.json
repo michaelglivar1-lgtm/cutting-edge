@@ -1,0 +1,81 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "BuildBridge Building Spec v0.1",
+  "description": "Single source of truth for one project. Claude writes this; deterministic code consumes it.",
+  "type": "object",
+  "required": ["project", "site", "program"],
+  "properties": {
+    "project": {
+      "type": "object",
+      "required": ["name", "building_type"],
+      "properties": {
+        "name": { "type": "string" },
+        "building_type": { "enum": ["hotel"] },
+        "code_basis": {
+          "type": "string",
+          "description": "Adopted code edition this spec was checked against, e.g. 'FBC 2023 8th Ed.'"
+        },
+        "sprinklered": { "type": "boolean", "default": true }
+      }
+    },
+    "site": {
+      "type": "object",
+      "required": ["parcel_width_ft", "parcel_depth_ft", "setbacks_ft"],
+      "properties": {
+        "address": { "type": "string" },
+        "lat": { "type": "number" },
+        "lon": { "type": "number" },
+        "parcel_width_ft": { "type": "number", "exclusiveMinimum": 0 },
+        "parcel_depth_ft": { "type": "number", "exclusiveMinimum": 0 },
+        "setbacks_ft": {
+          "type": "object",
+          "required": ["front", "rear", "side_left", "side_right"],
+          "properties": {
+            "front": { "type": "number", "minimum": 0 },
+            "rear": { "type": "number", "minimum": 0 },
+            "side_left": { "type": "number", "minimum": 0 },
+            "side_right": { "type": "number", "minimum": 0 },
+            "source": { "type": "string", "description": "Where these came from — municipal code section, not a guess" }
+          }
+        },
+        "height_limit_ft": { "type": "number" },
+        "flood": {
+          "type": "object",
+          "properties": {
+            "zone": { "type": "string", "description": "FEMA NFHL zone, e.g. AE, X" },
+            "base_flood_elevation_ft": { "type": ["number", "null"] },
+            "fetched_at": { "type": "string" }
+          }
+        }
+      }
+    },
+    "program": {
+      "type": "object",
+      "required": ["keys", "floors"],
+      "properties": {
+        "keys": { "type": "integer", "exclusiveMinimum": 0, "description": "Guestroom count" },
+        "floors": { "type": "integer", "exclusiveMinimum": 0 },
+        "guestroom_bay_width_ft": { "type": "number", "default": 13.0 },
+        "guestroom_depth_ft": { "type": "number", "default": 30.0 },
+        "corridor_width_ft": { "type": "number", "default": 6.0 },
+        "floor_to_floor_ft": { "type": "number", "default": 10.5 },
+        "ground_floor_to_floor_ft": { "type": "number", "default": 14.0 },
+        "ground_floor_amenity": {
+          "type": "boolean",
+          "default": true,
+          "description": "If true, floor 1 is lobby/amenity and guestrooms start on floor 2"
+        }
+      }
+    },
+    "structure": {
+      "type": "object",
+      "properties": {
+        "assumed_soil_bearing_psf": {
+          "type": "number",
+          "description": "Preliminary assumption ONLY — superseded by geotech report"
+        },
+        "geotech_report": { "type": "boolean", "default": false }
+      }
+    }
+  }
+}
