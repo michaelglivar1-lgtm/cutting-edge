@@ -1,14 +1,5 @@
 [
   {
-    "slug": "dock-repair",
-    "title": "Dock Repair",
-    "h1_noun": "Dock Repair & Boat Lift Service",
-    "intent": "dock repair and boat lift repair",
-    "scope": "Piling replacement, decking and framing repair, boat-lift motor/cable/bunk service, electrical and water line repair, and storm-damage restoration.",
-    "trades": "Marine carpentry, pile jetting/driving, lift service, and electrical repair.",
-    "brands": "Composite decking, boat-lift cables/motors, marine hardware"
-  },
-  {
     "slug": "luxury-kitchen-remodel",
     "title": "Luxury Kitchen Remodel",
     "h1_noun": "Luxury Kitchen Remodel",
