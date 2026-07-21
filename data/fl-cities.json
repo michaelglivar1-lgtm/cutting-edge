@@ -1,0 +1,12 @@
+[
+ {"slug":"palm-beach","name":"Palm Beach","coast":"Atlantic barrier-island and Intracoastal waterfront","price_note":"$2M–$20M estates","signature":"oceanfront estates and landmarked properties"},
+ {"slug":"boca-raton","name":"Boca Raton","coast":"Atlantic and Intracoastal waterfront","price_note":"$1M–$10M","signature":"luxury coastal and country-club homes"},
+ {"slug":"jupiter","name":"Jupiter","coast":"Loxahatchee River and Atlantic waterfront","price_note":"$1M–$8M","signature":"riverfront and marina-front residences"},
+ {"slug":"delray-beach","name":"Delray Beach","coast":"Intracoastal and beachside","price_note":"$900K–$6M","signature":"coastal and downtown luxury homes"},
+ {"slug":"fort-lauderdale","name":"Fort Lauderdale","coast":"deepwater canals and Intracoastal","price_note":"$1M–$15M","signature":"deepwater yacht homes and canal estates"},
+ {"slug":"miami","name":"Miami","coast":"Biscayne Bay and ocean waterfront","price_note":"$1M–$30M","signature":"bayfront estates and modern waterfront homes"},
+ {"slug":"naples","name":"Naples","coast":"Gulf and canal waterfront","price_note":"$1.5M–$20M","signature":"Gulf-front and boating-community estates"},
+ {"slug":"vero-beach","name":"Vero Beach","coast":"barrier-island and river waterfront","price_note":"$800K–$6M","signature":"oceanfront and riverfront residences"},
+ {"slug":"stuart","name":"Stuart","coast":"St. Lucie River and Intracoastal","price_note":"$700K–$5M","signature":"riverfront and sailfish-coast homes"},
+ {"slug":"fort-pierce","name":"Fort Pierce","coast":"Indian River Lagoon and inlet","price_note":"$500K–$3M","signature":"waterfront and inlet-access homes"}
+]
