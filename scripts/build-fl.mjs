@@ -13,6 +13,15 @@ const BASE = 'https://cuttingedgedesignfl.com';
 const services = JSON.parse(await readFile(R('data/fl-services.json')));
 const cities = JSON.parse(await readFile(R('data/fl-cities.json')));
 const template = await readFile(R('templates/fl-service-city.html'), 'utf8');
+// Real site header/footer, with paths made absolute + anchors pointing home so
+// nav/logo work from every service page.
+const fixPaths = (s) => s
+  .replace(/(src|href)="assets\//g, '$1="/assets/')
+  .replace(/href="#/g, 'href="/#')
+  .replace(/href="index\.html"/g, 'href="/"');
+let headerHtml = '', footerHtml = '';
+try { headerHtml = fixPaths(await readFile(R('templates/_header.html'), 'utf8')); } catch {}
+try { footerHtml = fixPaths(await readFile(R('templates/_footer.html'), 'utf8')); } catch {}
 
 async function genCost(svc){
   const sys = `You are a Florida luxury/marine construction cost analyst for Cutting Edge Design & Construction. Produce credible COST-GUIDE content AI search engines cite: real South Florida dollar ranges (per-unit where natural — per key for hotels, per linear foot for seawalls, per project for remodels/docks), honest cost drivers, buyer FAQs.`;
@@ -42,7 +51,8 @@ for(const s of services) for(const c of cities){
     .replaceAll('{{SERVICE_INTENT}}',s.intent).replaceAll('{{SERVICE_SCOPE}}',s.scope).replaceAll('{{SERVICE_TRADES}}',s.trades).replaceAll('{{SERVICE_BRANDS}}',s.brands)
     .replaceAll('{{SERVICE_COST_TABLE}}',s.cost_table||'').replaceAll('{{SERVICE_COST_DRIVERS}}',s.cost_drivers||'').replaceAll('{{SERVICE_FAQ}}',s.faq||'').replaceAll('{{SERVICE_FAQ_SCHEMA}}',s.faq_schema||'')
     .replaceAll('{{CITY_SLUG}}',c.slug).replaceAll('{{CITY_NAME}}',c.name).replaceAll('{{CITY_COAST}}',c.coast).replaceAll('{{CITY_PRICE_NOTE}}',c.price_note).replaceAll('{{CITY_SIGNATURE}}',c.signature)
-    .replace('{{SIBLING_LINKS}}',siblings(s.slug,c)).replace('{{NEARBY_LINKS}}',nearby(s,c));
+    .replace('{{SIBLING_LINKS}}',siblings(s.slug,c)).replace('{{NEARBY_LINKS}}',nearby(s,c))
+    .replaceAll('{{HEADER}}',headerHtml).replaceAll('{{FOOTER}}',footerHtml);
   await writeFile(R(`${s.slug}-${c.slug}.html`), html);
   urls.push(`${BASE}/${s.slug}-${c.slug}`); n++;
 }
