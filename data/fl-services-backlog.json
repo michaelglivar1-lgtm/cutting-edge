@@ -1,14 +1,5 @@
 [
   {
-    "slug": "luxury-kitchen-remodel",
-    "title": "Luxury Kitchen Remodel",
-    "h1_noun": "Luxury Kitchen Remodel",
-    "intent": "luxury kitchen renovation",
-    "scope": "Custom cabinetry, natural-stone slabs, integrated luxury appliances, islands and prep zones, and coastal-durable finishes for Florida waterfront homes.",
-    "trades": "Cabinetry, plumbing and electrical, stone fabrication, and finish carpentry under one principal-led schedule.",
-    "brands": "Sub-Zero, Wolf, Miele, quartzite and marble, custom millwork"
-  },
-  {
     "slug": "luxury-bathroom-remodel",
     "title": "Luxury Bathroom Remodel",
     "h1_noun": "Luxury Bathroom Remodel",
