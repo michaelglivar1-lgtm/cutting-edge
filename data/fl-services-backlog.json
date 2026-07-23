@@ -1,14 +1,5 @@
 [
   {
-    "slug": "luxury-bathroom-remodel",
-    "title": "Luxury Bathroom Remodel",
-    "h1_noun": "Luxury Bathroom Remodel",
-    "intent": "luxury bathroom renovation",
-    "scope": "Primary-suite and spa baths, wet rooms, natural stone, curbless showers, freestanding tubs, and moisture-engineered waterproofing for coastal humidity.",
-    "trades": "Waterproofing, tile and stone, plumbing, and finish work under one schedule.",
-    "brands": "Waterworks, THG, natural stone, Schluter systems"
-  },
-  {
     "slug": "hotel-pip-renovation",
     "title": "Hotel PIP Renovation",
     "h1_noun": "Hotel PIP Renovation",
