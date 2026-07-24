@@ -1,14 +1,5 @@
 [
   {
-    "slug": "hotel-pip-renovation",
-    "title": "Hotel PIP Renovation",
-    "h1_noun": "Hotel PIP Renovation",
-    "intent": "hotel Property Improvement Plan renovation",
-    "scope": "Guestroom and public-space PIPs, soft-goods and case-goods, corridors, and FF&E — phased to keep the hotel open, on-brand, and on schedule.",
-    "trades": "Phased construction, FF&E procurement/install, MEP, and brand-standard compliance.",
-    "brands": "Marriott, Hilton, IHG, Hyatt, Wyndham standards"
-  },
-  {
     "slug": "hotel-brand-conversion",
     "title": "Hotel Brand Conversion",
     "h1_noun": "Hotel Brand Conversion",
