@@ -1,0 +1,2 @@
+// Contact clicks are intent events, not proof that an inquiry was received.
+document.addEventListener('click',function(e){const a=e.target.closest('a[href]');if(!a||typeof window.gtag!=='function')return;const href=a.getAttribute('href');if(href.startsWith('tel:'))gtag('event','contact_phone_click',{page_path:location.pathname});else if(href.startsWith('mailto:'))gtag('event','contact_email_click',{page_path:location.pathname});});

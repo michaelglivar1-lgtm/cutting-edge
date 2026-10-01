@@ -1,0 +1,29 @@
+{
+  "version": 1,
+  "origin": "https://cuttingedgedesignfl.com",
+  "business": "Cutting Edge Design & Construction",
+  "criticalPages": [
+    "index.html",
+    "remodeling.html",
+    "kitchen-remodeling.html",
+    "bathroom-remodeling.html",
+    "luxury-interiors.html",
+    "landscape-outdoor-living.html"
+  ],
+  "excludedPrefixes": [
+    "seawall-",
+    "dock-"
+  ],
+  "searchBots": [
+    "Googlebot",
+    "Bingbot",
+    "OAI-SearchBot"
+  ],
+  "services": [
+    "Kitchen remodeling",
+    "Bathroom remodeling",
+    "Interiors & whole-home remodeling",
+    "Landscape & outdoor living"
+  ],
+  "changeLimit": 5
+}

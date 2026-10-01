@@ -1446,3 +1446,7 @@
 @media (min-width: 1281px) {
   .site-header .nav { margin-left: var(--space-8); }
 }
+
+
+/* Service discovery */
+.ce-service-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:20px}.ce-service-grid .service-card{display:block;color:inherit;text-decoration:none;border:1px solid #b8a788;padding:24px}.ce-service-grid h3{font-family:Georgia,serif;font-size:25px;line-height:1.2;margin:16px 0}.ce-service-grid span{font-size:12px;letter-spacing:.06em}.ce-service-grid p{font-size:14px;line-height:1.7}@media(max-width:1000px){.ce-service-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:600px){.ce-service-grid{grid-template-columns:1fr}.hero-eyebrow{letter-spacing:.13em}}

@@ -1,3 +1,4 @@
+if (!process.argv.includes('--reviewed-build')) { throw new Error('Bulk page generation is disabled. Use scripts/seo-audit.mjs for routine maintenance; review source data before any explicit rebuild.'); }
 // Cutting Edge FL generator: {service}×{city} cost-guide pages (hotel PIP, luxury
 // kitchen/bath, seawall, dock) — the AI-cited blueprint (cost table + drivers +
 // FAQ + schema). Generates missing cost content, writes pages, updates sitemap.
@@ -63,3 +64,4 @@ const rows = urls.filter(u=>!sm.includes(`<loc>${u}</loc>`)).map(u=>`  <url><loc
 if(rows) sm = sm.replace('</urlset>', rows+'\n</urlset>');
 await writeFile(R('sitemap.xml'), sm);
 console.log(`Generated ${n} FL service-city pages (${services.length} services × ${cities.length} cities). Cost content generated for ${filled} new services.`);
+
