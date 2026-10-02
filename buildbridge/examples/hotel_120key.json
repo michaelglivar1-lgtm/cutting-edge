@@ -1,0 +1,35 @@
+{
+  "project": {
+    "name": "Example 120-key select-service hotel",
+    "building_type": "hotel",
+    "code_basis": "FBC 2023 8th Ed. (VERIFY with AHJ)",
+    "sprinklered": true
+  },
+  "site": {
+    "address": "REPLACE — real parcel address",
+    "parcel_width_ft": 300,
+    "parcel_depth_ft": 220,
+    "setbacks_ft": {
+      "front": 25,
+      "rear": 20,
+      "side_left": 15,
+      "side_right": 15,
+      "source": "PLACEHOLDER — pull from municipal zoning code for the real parcel"
+    },
+    "height_limit_ft": 60,
+    "flood": {
+      "zone": null,
+      "base_flood_elevation_ft": null,
+      "fetched_at": null
+    }
+  },
+  "program": {
+    "keys": 120,
+    "floors": 5,
+    "ground_floor_amenity": true
+  },
+  "structure": {
+    "assumed_soil_bearing_psf": 2500,
+    "geotech_report": false
+  }
+}
